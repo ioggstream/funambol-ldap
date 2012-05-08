@@ -28,6 +28,7 @@ import com.funambol.common.pim.contact.Phone;
 import com.funambol.common.pim.contact.Title;
 import com.funambol.common.pim.contact.WebPage;
 import com.funambol.framework.engine.SyncItem;
+import com.funambol.server.config.Configuration;
 
 /**
  * Implements DAO for PiTypePerson, an extended objectclass with 1-1 mapping between vcard and ldap
@@ -641,6 +642,7 @@ public class PiTypeContactDAO extends ContactDAO implements ContactDAOInterface 
 				break;
 			}
 		}
+		// get the first phone number
 		for (String a:	new String[] { attributeMap.get(PHONEMOBILE), attributeMap.get(PHONEMOBILEHOME), attributeMap.get(PHONEPRIMARY)}) {
 			val = LdapUtils.getPrintableAttribute(attrs.get(a));
 			if (StringUtils.isNotEmpty(val)) {
@@ -691,10 +693,48 @@ public class PiTypeContactDAO extends ContactDAO implements ContactDAOInterface 
 		}
 		return filter;
 	}
+	
+	/**
+	 * Merge a1 into a0 when no conflicting fields are found
+	 * 
+	 * TODO which attributes to skip (nsUniqueId
+	 * TODO this method is a stub
+	 * @param a0 old item
+	 * @param a1 new item
+	 * @return null if unmergeable
+	 */
 	public Attributes mergeAttributes(Attributes a0, Attributes a1) {
         logger.trace("PiTypeContactDAO mergeAttributes begin");
-
-		// TODO Auto-generated method stub
-		return null;
+        
+        if (a1 != null) {
+        	for (String attrName: getSupportedAttributes()) {
+        		if (StringUtils.equals(attrName, this.getRdnAttribute()) ||
+        				StringUtils.equals(attrName, getSoftDeleteAttribute()) ||
+        				StringUtils.equals(attrName, getTimestampAttribute()) ||
+        				StringUtils.equals(attrName, getSoftDeleteFilter())
+        				)
+        			continue;
+        		
+				String val0 = LdapUtils.getPrintableAttribute(a0.get(attrName));
+				String val1 = LdapUtils.getPrintableAttribute(a1.get(attrName));
+				
+				if (StringUtils.isNotBlank(val1)) {
+					if (StringUtils.isBlank(val0)) {
+						a0.remove(attrName);
+						a0.put(a1.get(attrName));
+					} else if (!StringUtils.equalsIgnoreCase(val0, val1)) {
+						logger.warn("Unresoluble conflict for attribute " + attrName);
+						if (logger.isWarningEnabled() 
+								// && Configuration.getConfiguration().isDebugMode() 
+								) {
+							logger.warn(String.format("Attribute mismatch [%s] and [%s]",val0,val1));
+						}
+						return null; 
+					}
+				}
+				
+        	} //for
+        }
+		return a0;
 	}
 }

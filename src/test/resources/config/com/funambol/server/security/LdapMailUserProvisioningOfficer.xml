@@ -8,10 +8,10 @@
 			<string>FedoraDs</string>
 		</void>
 		<void property="ldapUrl">
-			<string>ldap://ldap.example.com/</string>
+			<string>ldap://localhost:1024/</string>
 		</void>
 		<void property="baseDn">
-			<string>dc=babel,dc=it</string>
+			<string>ou=system</string>
 		</void>
 		<void property="userSearch">
 			<string>(&amp;(mail=%s)(objectclass=inetorgperson))</string>

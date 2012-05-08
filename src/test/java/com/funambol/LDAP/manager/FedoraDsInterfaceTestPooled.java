@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.naming.directory.SearchControls;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import com.funambol.LDAP.BaseTestCase;
 import com.funambol.LDAP.dao.ContactDAOInterface;
 import com.funambol.LDAP.dao.impl.ContactDAO;
@@ -33,7 +36,8 @@ public class FedoraDsInterfaceTestPooled extends BaseTestCase {
 	private List<String> addedEntries;
 
 	@Override
-	protected void setUp() throws Exception {
+	@Before
+protected void setUp() throws Exception {
 		// TODO Auto-generated method stub
 		super.setUp();
 		addedEntries = new ArrayList<String>();
@@ -63,7 +67,8 @@ public class FedoraDsInterfaceTestPooled extends BaseTestCase {
 	 * test various ways of constructing LdapManager
 	 */
 
-	public void testConstructor() {
+	@Test
+public void testConstructor() {
 		// test variuos type of manager constructor
 		boolean isPooled = false;
 		// direct constructor without dao
@@ -121,7 +126,8 @@ public class FedoraDsInterfaceTestPooled extends BaseTestCase {
 		}
 	}
 
-	public void testIterateConstructor() throws Exception {
+	@Test
+public void testIterateConstructor() throws Exception {
 		for (int i=0; i<10; i++) {
 			testConstructor();
 		}

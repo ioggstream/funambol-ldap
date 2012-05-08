@@ -11,6 +11,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.funambol.LDAP.BaseTestCase;
@@ -37,7 +38,7 @@ import com.funambol.framework.tools.beans.BeanException;
 import com.funambol.server.config.Configuration;
 
 public class TestSoftDelete extends BaseTestCase {
-	private static final String BEAN_NAME = "./ldap/ldap/ldap-7.0/ldap-softdelete.xml";
+	private static final String BEAN_NAME = "./ldap/ldap/ldap-7.1/ldap-softdelete.xml";
 
 
 	protected String USER_BASEDN = "ou=people, dc=bigdomain.net,o=bigcompany," + ROOT_DN;
@@ -61,7 +62,8 @@ public class TestSoftDelete extends BaseTestCase {
 	TestableLdapManager manager;
 
 	@Override
-	protected void setUp() throws Exception {
+	@Before
+protected void setUp() throws Exception {
 		super.setUp();
 		ldapUser = new LDAPUser(this.USER);
 		ldapUser.setPsRoot("ldap://pab.example.com/"+PSROOT);
@@ -95,9 +97,10 @@ public class TestSoftDelete extends BaseTestCase {
 		}
 	}
 
-	public void testCreateSyncSource() throws DBAccessException {
+	@Test
+public void testCreateSyncSource() throws DBAccessException {
 		try {
-			ExtendedLDAPContactsSyncSource syncSource = (ExtendedLDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
+			LDAPContactsSyncSource syncSource = (LDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
 			logger.info(syncSource);
 			
 			syncSource.beginSync(context);
@@ -143,13 +146,13 @@ public class TestSoftDelete extends BaseTestCase {
 	 * @throws SyncSourceException 
 	 */
 	public void _testNUD_FAST() throws SyncSourceException {
-		ExtendedLDAPContactsSyncSource syncSource = null;
+		LDAPContactsSyncSource syncSource = null;
 		SyncItem syncItem1 = null;
 		String funItem1 = "funItem1";
 		String funItem2 = "funItem2";
 		String ldapItem = "ldapItem";
 		try {
-			syncSource = (ExtendedLDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
+			syncSource = (LDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
 
 
 			// make the first sync[0, t0]... N!=0, U=D=0
@@ -259,7 +262,7 @@ public class TestSoftDelete extends BaseTestCase {
 			fail();
 		}
 
-		ExtendedLDAPContactsSyncSource syncSource = null;
+		LDAPContactsSyncSource syncSource = null;
 		SyncItem syncItem1 = null;
 		String funItem1 = "mobileItem";
 		String funItem2 = "funItem2";
@@ -267,7 +270,7 @@ public class TestSoftDelete extends BaseTestCase {
 
 		String ldapItem = "ldapItem";
 		try {
-			syncSource = (ExtendedLDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
+			syncSource = (LDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
 
 
 			// make the first sync[0, t0]... N!=0, U=D=0
@@ -369,15 +372,15 @@ public class TestSoftDelete extends BaseTestCase {
 
 
 
- public void testAddSoftDelete() {
-		ExtendedLDAPContactsSyncSource syncSource;
+ public void _testAddSoftDelete() {
+		LDAPContactsSyncSource syncSource;
 		SyncItem syncItem1 = null;
 		String funItem1 = "funItem1";
 		String funItem2 = "funItem2";
 
 		try {
 			// create ss
-			syncSource = (ExtendedLDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
+			syncSource = (LDAPContactsSyncSource) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
 			logger.info(syncSource);
 
 			// first sync: create item

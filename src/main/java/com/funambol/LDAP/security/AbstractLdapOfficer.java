@@ -9,7 +9,7 @@ import com.funambol.framework.tools.beans.LazyInitBean;
 import com.funambol.server.security.DBOfficer;
 
 public class AbstractLdapOfficer extends DBOfficer
-implements LazyInitBean, Serializable, Constants{
+implements LazyInitBean, Serializable, Constants {
 
 	/**
 	 * 

@@ -13,5 +13,3 @@ or dynamic:
 
 See INSTALL.txt for more infos.
 
-NOTE: to prepare the sources you need to issue in the main directory
-# ln -s src/test/resources/config/

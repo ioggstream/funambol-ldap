@@ -10,6 +10,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import com.funambol.LDAP.BaseTestCase;
 import com.funambol.LDAP.dao.ContactDAOInterface;
 import com.funambol.LDAP.dao.impl.ContactDAO;
@@ -31,11 +34,10 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	private String ENTRY_UID = "123-123-123-123";
 
 
-	protected String USER_BASEDN = "ou=people, dc=bigdomain.net,o=bigcompany," + ROOT_DN;
-	private static String USER_DN ="uid=Aaccf.Amar,ou=People,dc=bigdomain.net,o=bigcompany,dc=babel,dc=it";
-	private static String USER_PASS = "password";
-	private static String USER_MAIL = "aaccf.amar@bigdomain.net";
-	private static String PSROOT = "ou=Aaccf.Amar@bigdomain.net, dc=bigdomain.net, dc=PAB";
+	protected static String USER_BASEDN = "ou=People,dc=demo1.net,o=rpolli,node=isola1," + ROOT_DN;
+	private static String USER_DN ="uid=daniele," + USER_BASEDN;
+	private static String PSROOT = "ou=daniele@demo1.net,dc=demo1.net,o=db1";
+	private static String PSSERVER = "ldap://mailtopaagg:389/";
 
 	private  ContactDAOInterface piTypeCdao = new PiTypeContactDAO();
 	private  ContactDAOInterface personCdao = new PersonContactDAO();
@@ -45,6 +47,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	private List<String> addedEntries;
 
 	@Override
+	@Before
 	protected void setUp() throws Exception {
 		super.setUp();
 		addedEntries = new ArrayList<String>();
@@ -57,14 +60,18 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 		addedEntries.add("("+ldapInterface.getLdapId()+"=-2)");
 		addedEntries.add("(cn=" + PiTypeContactDAOTest.USER_FULLNAME+ ")");
 		for (String filter : addedEntries) {
-			try {
-				for (String dn : ldapInterface.searchDn(filter, SearchControls.SUBTREE_SCOPE) ) {
-					logger.info("deleting entry: "+ dn);
-					ldapInterface.delete(dn, false);	
-					//addedEntries.remove(filter);					
+			if (filter != null && !"null".equals(filter)) {
+				try {
+					for (String dn : ldapInterface.searchDn(filter, SearchControls.SUBTREE_SCOPE) ) {
+						logger.info("deleting entry: "+ dn);
+						if (dn != null) {
+							ldapInterface.delete(dn, false);
+						}
+						//addedEntries.remove(filter);					
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 
@@ -73,7 +80,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	/**
 	 * test various ways of constructing LdapManager
 	 */
-
+	@Test
 	public void testConstructor() {
 		// test variuos type of manager constructor
 
@@ -150,6 +157,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	 * @throws SyncSourceException 
 	 * @throws LDAPAccessException 
 	 */
+	@Test
 	public void testSearchDn() throws SyncSourceException, LDAPAccessException {
 		// create anonymous ldapinterface context
 		ldapInterface = new FedoraDsInterface(LDAP_URI, ROOT_DN, null, null, false, false);
@@ -164,16 +172,17 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	}
 
 	/**
-	 * Retrieve one entry from user's psRoot
+	 * Retrieve one entry from user's psRoot. Credentials are not taken from the main bean
 	 * @throws SyncSourceException 
 	 * @throws NamingException 
 	 * @throws LDAPAccessException 
 	 */
-	public void testSearchOneEntry() throws SyncSourceException, NamingException, LDAPAccessException {
+	@Test
+	public void testSearchOneEntryFromPsroot() throws SyncSourceException, NamingException, LDAPAccessException {
 		logger.info("testSearchOneEntry");
 
 		// retrieve attrs from DN
-		ldapInterface = new FedoraDsInterface(LDAP_URI, USER_BASEDN, USER_DN, USER_PASS, false, false);
+		ldapInterface = new FedoraDsInterface(LDAP_URI, USER_BASEDN, USER_DN, USER_MAIL_PASSWORD, false, false);
 
 		Attributes attrs =  (ldapInterface.searchOneEntry("(objectclass=*)", 
 				new String[] { "dn", "psRoot"} , 
@@ -184,16 +193,18 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 
 
 		ldapInterface = null;
-		ldapInterface = new FedoraDsInterface(psroot,"", null,null, false, false);
+		ldapInterface = new FedoraDsInterface(psroot,"", credential.adminUser, credential.adminPassword, false, false);
+		ldapInterface.setEntryFilter("(piEntryId=*)");
 
 		List<String> entries = ldapInterface.getAllUids();
 		logger.info("found #entries: " + entries.size());
-		assertNotSame(0, entries.size());
+		assertNotSame("No entries found in the psRoot. You need to populate it! ", 0, entries.size());
 
 	}
 	/** 
 	 * retrieve all entries
 	 */
+	@Test
 	public void testGetAllUids() {
 		try {
 			logger.info("testGetAllEntries");
@@ -210,7 +221,8 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 			fail(e.getMessage());
 		}
 	}
-	
+
+	@Test
 	public void testCacheAllEntries() throws NamingException {
 		logger.info("testGetAllEntries");
 		try {
@@ -229,6 +241,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	/**
 	 * are there performance issues between list and hashmap?
 	 */
+	@Test
 	public void testCacheAllEntriesAsList() {
 		logger.info("testGetAllEntries");
 		try {
@@ -247,12 +260,16 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	 * @throws NamingException 
 	 * @throws SyncSourceException 
 	 */
+	@Test
 	public void testAddUpdateRemove() throws Exception {
 		try {
 			logger.info("testAddUpdateRemove");
 
-			for (ContactDAOInterface dao : new ContactDAOInterface[] {standardCdao, personCdao, piTypeCdao} ) {
-				ldapInterface = new FedoraDsInterface(this.LDAP_URI, this.USER_BASEDN, DM_USER, DM_PASS, false, false, dao);
+			for (ContactDAOInterface dao : new ContactDAOInterface[] {/*standardCdao, personCdao,*/ piTypeCdao} ) {
+				logger.info("testing with DAO: " + dao.getClass().getName());
+				ldapInterface = new FedoraDsInterface(LDAP_URI, USER_BASEDN, 
+						credential.adminUser, 
+						credential.adminPassword, false, false, dao);
 				Attributes entryAttributes;
 
 				String mailAttribute;
@@ -266,7 +283,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 					assertNotNull(attrs.get("psRoot"));
 					String psRoot = (String) attrs.get("psRoot").get();
 					ldapInterface.close();
-					ldapInterface.init(psRoot, "", DM_USER, DM_PASS, false, false);
+					ldapInterface.init(psRoot, "", credential.adminUser, credential.adminPassword, false, false);
 
 					ldapInterface.setLdapId(dao.getRdnAttribute());
 
@@ -280,8 +297,8 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 
 
 				String myKey = ldapInterface.addNewEntry(entryAttributes);
-				addedEntries.add(String.format("(%s=%s)", ldapInterface.getLdapId(), myKey));
 				assertNotNull(myKey);
+				addedEntries.add(String.format("(%s=%s)", ldapInterface.getLdapId(), myKey));
 
 				entryAttributes.remove(mailAttribute);
 				entryAttributes.put(mailAttribute, "newmail@babel.it");
@@ -303,10 +320,11 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 
 	}
 
+	@Test
 	public void testGetLastModified() throws SyncSourceException, LDAPAccessException, NamingException {
 		PiTypeContactDAO dao =  (PiTypeContactDAO)piTypeCdao;
 
-		ldapInterface = new FedoraDsInterface("ldap://be-mmt.babel.it/", PSROOT, DM_USER, DM_PASS, false, false, dao);
+		ldapInterface = new FedoraDsInterface(PSSERVER, PSROOT, credential.adminUser, credential.adminPassword, false, false, dao);
 		//	ldapInterface.setLdapId(dao.getRdnAttribute());
 		String filter = String.format(ldapInterface.BASIC_FILTER, ldapInterface.getLdapId(),"*");
 		HashMap<String,String> map = new HashMap<String, String>();
@@ -323,13 +341,14 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	}
 
 
+	@Test
 	public void testAddAndSoftDelete() throws LDAPAccessException {
 		String idfilter = "";
 		try {
 			// work only with PiTypeContactDAO
 			PiTypeContactDAO dao =  (PiTypeContactDAO)piTypeCdao;
 
-			ldapInterface = new FedoraDsInterface("ldap://be-mmt.babel.it/", PSROOT, DM_USER, DM_PASS, false, false, dao);
+			ldapInterface = new FedoraDsInterface(PSSERVER, PSROOT, credential.adminUser, credential.adminPassword, false, false, dao);
 			ldapInterface.setLdapId(dao.getRdnAttribute());
 
 			Attributes entryAttributes = PiTypeContactDAOTest.getMockEntry();
@@ -358,40 +377,29 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 	}
 
 
-//	private void testSearchSoftDelete() {
-//		return;
-//	}
-//	/**
-//	 * add 2 entries
-//	 * update 1 entry
-//	 * retrieve new and updated
-//	 */
-//	private void testAddUpdateAndGetNewUpdated() {
-//		return;
-//	}
+	//	private void testSearchSoftDelete() {
+	//		return;
+	//	}
+	//	/**
+	//	 * add 2 entries
+	//	 * update 1 entry
+	//	 * retrieve new and updated
+	//	 */
+	//	private void testAddUpdateAndGetNewUpdated() {
+	//		return;
+	//	}
 
-	private SyncItem getResourceAsSyncItem(String path, String uid) {
-		String c0 = getResourceAsString(path);
-		return new SyncItemImpl(	
-				null, 
-				uid,
-				null, 
-				SyncItemState.NEW, 
-				c0.getBytes(),
-				null,
-				null,
-				null
-		);
-	}
+
 
 	/**
 	 * this should create a new syncItemKey to be returned
 	 * @param si
 	 * @return
 	 */
+	@Test
 	public void testAddUpdateRemoveSyncItem() {
 		try {
-			ldapInterface = new FedoraDsInterface("ldap://be-mmt.babel.it/"+PSROOT, "", DM_USER, DM_PASS, false, false, piTypeCdao);
+			ldapInterface = new FedoraDsInterface(PSSERVER+PSROOT, "", credential.adminUser, credential.adminPassword, false, false, piTypeCdao);
 
 			ldapInterface.setLdapId(ldapInterface.getCdao().getRdnAttribute());
 			String vcards[] = { 
@@ -399,14 +407,14 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 					, "vcard-2.vcf","vcard-3.vcf", "vcard-4.vcf", "vcard-5.vcf"
 			};
 
-			Timestamp t0    = new Timestamp(System.currentTimeMillis());
+			Timestamp t0 = new Timestamp(System.currentTimeMillis());
 			for (String vcf : vcards) {
 				logger.info("testAddUpdateRemoveSyncItem: "+ vcf);
 				try {
-					SyncItem item = getResourceAsSyncItem(FCTF_BASIC +  vcf, "-1");
+					SyncItem item = getResourceAsSyncItem(FCTF_BASIC +  vcf,  TYPE_VCF2);
 					String key = ldapInterface.addNewEntry(item);
-					addedEntries.add(String.format("(%s=%s)", ldapInterface.getLdapId(), key));
 					assertNotNull(key);
+					addedEntries.add(String.format("(%s=%s)", ldapInterface.getLdapId(), key));
 
 					item.setState(SyncItemState.UPDATED);
 					item.setTimestamp(t0);
@@ -460,7 +468,7 @@ public class FedoraDsInterfaceTest extends BaseTestCase  {
 		return null;
 	}
 
-*/
+	 */
 
 
 

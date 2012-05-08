@@ -23,7 +23,7 @@
 
    <void method="setProperty">
     <string>url</string>
-    <string>jdbc:hsqldb:hsql://localhost/funambol</string>
+    <string>jdbc:hsqldb:mem:coredb</string>
    </void>
    <void method="setProperty">
     <string>driverClassName</string>

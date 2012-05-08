@@ -12,8 +12,10 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import com.funambol.LDAP.BaseTestCase;
+import com.funambol.LDAP.converter.ContactToVcard3;
 import com.funambol.LDAP.dao.ContactDAOInterface;
 import com.funambol.LDAP.utils.LdapUtils;
 import com.funambol.common.pim.contact.Contact;
@@ -36,6 +38,7 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 
 	public static final String USER_FULLNAME = "Roberto Utenteditest Polli"; 
 
+	@Test
 	public void testCreateContact() {
 		// convert an ldap entry made of Attributes to a vcard
 		ContactDAOInterface cdao = new PiTypeContactDAO();
@@ -54,6 +57,7 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 
 	}
 
+	@Test
 	public void testGetter() {
 		ContactDAOInterface cdao = new PiTypeContactDAO();
 
@@ -64,6 +68,7 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 	 * test conversion ldap2Contact and back
 	 * @throws NamingException
 	 */
+	@Test
 	public void testLdapPIM_goAndForth_1() throws NamingException {
 
 		Attributes attrs= getMockEntry();		
@@ -99,6 +104,7 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 	 * Convert basic vcf to to Ldap Attributes, then back again to vcf
 	 * this check entry rdn and timestamp
 	 */
+	@Test
 	public void testVcs2ToLdap_basic() {
 		// convert a vcard entry to ldap
 		String vcards[] = { 
@@ -133,14 +139,15 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 	@Ignore
 	public void _testVcs3ToLdap_basic() {
 		// convert a vcard entry to ldap
+		vcardConverter =  new ContactToVcard3(null, "UTF-8");
 		String vcards[] = { 
-		"vcard3.0-1.vcf" };
+		"card-2.vcard" };
 
 		for (String vcf : vcards) {
 			try {
 				InputStream stream =  this.getClass().getClassLoader()
-				.getResourceAsStream(FCTF_ADVANCED   +  vcf);
-				String c0 = getResourceAsString(FCTF_ADVANCED   +  vcf);
+				.getResourceAsStream(FCTF_ADVANCED_VCARD   +  vcf);
+				String c0 = getResourceAsString(FCTF_ADVANCED_VCARD   +  vcf);
 				VcardParser parser = new VcardParser(stream);
 
 				Contact pimC = parser.vCard();
@@ -156,8 +163,9 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 			} catch (ConverterException e) {
 				e.printStackTrace();
 				fail("error converting data"+e.getMessage());
-			}  catch (Exception e) {
+			}  catch (Exception e) {				
 				logger.error("missing file: "+ e.getMessage());
+				e.printStackTrace();
 				fail("missing file:" + e.getMessage());
 			}
 		}
@@ -165,6 +173,7 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 	/**
 	 * Convert basic syncitem  to to Ldap Attributes, then back again to vcf
 	 */
+	@Test
 	public void testSyncItemToLdap_basic() {
 		// convert a vcard entry to ldap
 		String vcards[] = { 
@@ -206,12 +215,13 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 		}
 	}
 
+	@Test
 	public void testGetTwin() {
 
 		Contact c = new Contact();
 		Name n = new Name();
-		n.getFirstName().setPropertyValue("firstname");
-		n.getLastName().setPropertyValue("lastname");
+		n.getFirstName().setPropertyValue("Winston");
+		n.getLastName().setPropertyValue("Smith");
 		c.setName(n);
 
 		logger.info(this.cdao.getTwinsFilter(c));
@@ -227,63 +237,97 @@ public class PiTypeContactDAOTest extends BaseTestCase {
 			fail();
 		}
 	}
+	@Test
+	public void testGetTwinFromItem() {
 
-	public void _testMergeSyncItems() {
-		InputStream stream =  this.getClass().getClassLoader()
-		.getResourceAsStream(FCTF_BASIC  +  "vcard-twin-0.vcf");
-		VcardParser parser = new VcardParser(stream);
-		Contact pimC;
+		Contact c = new Contact();
+		Name n = new Name();
+		n.getFirstName().setPropertyValue("Winston");
+		n.getLastName().setPropertyValue("Smith");
+		c.setName(n);
+
+		logger.info(this.cdao.getTwinsFilter(c));
+
+		// create two mock twinned mock entry
+		// check if twin(a) matches b and twin(b) matches a
 		try {
-			pimC = parser.vCard();
+			Attributes a1= getMockEntry();
+			Attributes a2 = getMockEntry();
+			logger.info(this.cdao.getTwinItemsByAttribute(a1));
+			assertEquals("getTwinItemsByAttribute is not a function!!", this.cdao.getTwinItemsByAttribute(a1), this.cdao.getTwinItemsByAttribute(a2));
 
-		Attributes a0 = cdao.createEntry(pimC);
+
+			SyncItem s1 = getResourceAsSyncItem(FCTF_ADVANCED+"vcard-full-1.vcf", TYPE_VCF2);
+			String filter = this.cdao.getTwinItems(s1);
+			logger.info("filter: "+ filter);
+
+			s1 = getResourceAsSyncItem(FCTF_BASIC+"vcard-5.vcf", TYPE_VCF2);
+			filter = this.cdao.getTwinItems(s1);
+			for (int i=1; i<5; i++) {
+				// create a mock tester or there's no solution... TODO 
+				SyncItem s2 = getResourceAsSyncItem(FCTF_BASIC+"vcard-twin-"+i+".vcf", TYPE_VCF2);
+				String filter2 = this.cdao.getTwinItems(s2);
+
+				logger.info("filter: \n\t"+ filter+"\n\t"+filter2);				
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	@Test
+	public void testMergeSyncItems() {		
+		Contact pimC;
+		String vcfItem = null;
+		try {
+			pimC = getResourceAsContact(FCTF_BASIC  +  "vcard-twin-0.vcf");
+
+			Attributes aOldItem = cdao.createEntry(pimC);
 
 
-		// convert a vcard entry to ldap
-		String vcards[] = { 
-				"vcard-twin-1.vcf", "vcard-twin-2.vcf",
-				"vcard-twin-3.vcf", "vcard-twin-4.vcf", "vcard-twin-5.vcf" };
+			// convert a vcard entry to ldap
+			String vcards[] = { 
+					"vcard-twin-1.vcf", "vcard-twin-2.vcf",
+					"vcard-twin-3.vcf", "vcard-twin-4.vcf", "vcard-twin-5.vcf" };
 
-		Timestamp t0    = new Timestamp(System.currentTimeMillis());
-		for (String vcf : vcards) {
+			for (String vcf : vcards) {	
+				vcfItem = vcf;
+				logger.info("iteration "+ vcf);
+				SyncItem item = getResourceAsSyncItem(FCTF_BASIC + vcf, TYPE_VCF2);
 
-			String c0 = getResourceAsString(FCTF_BASIC +  vcf);
-			SyncItem item = new SyncItemImpl(	
-					null, 
-					new SyncItemKey("-1"),
-					null, 
-					SyncItemState.NEW, 
-					c0.getBytes(),
-					null,
-					"text/x-vcard",
-					t0
-			);
 
-			// merge two items
-			Attributes a1= this.cdao.syncItemToLdapAttributes(item);
-			Attributes a2 = this.cdao.mergeAttributes(a0,a1);
-			
-			// check if I miss something
-			for (String attrName: cdao.attributeMap.values()) {
-				String val0 = LdapUtils.getPrintableAttribute(a0.get(attrName));
-				String val1 = LdapUtils.getPrintableAttribute(a1.get(attrName));
-				String merged = LdapUtils.getPrintableAttribute(a2.get(attrName));
+				// merge two items
+				Attributes aNewItem= this.cdao.syncItemToLdapAttributes(item);
+				Attributes aMerged = this.cdao.mergeAttributes(aOldItem,aNewItem);
 
-				if (StringUtils.isEmpty(merged)) {
-					if (StringUtils.isNotEmpty(val0) || StringUtils.isNotEmpty(val1)) {
-						fail(String.format("merged value: %s missed on merging %s and %s",merged, val0, val1));
-					}
-				} else {
-					if (! (merged.equals(val0) || merged.equals(val1))) {
-						fail(String.format("merged value: %s not  %s or %s",merged, val0, val1));
+				// check if I miss something
+				for (String attrName: cdao.getSupportedAttributes()) {
+					if (StringUtils.equals(attrName, cdao.getRdnAttribute()) ||
+							StringUtils.equals(attrName, cdao.getSoftDeleteAttribute()) ||
+							StringUtils.equals(attrName, cdao.getTimestampAttribute()) ||
+							StringUtils.equals(attrName, cdao.getSoftDeleteFilter())
+					)
+						continue;
+					String val0 = LdapUtils.getPrintableAttribute(aOldItem.get(attrName));
+					String val1 = LdapUtils.getPrintableAttribute(aNewItem.get(attrName));
+					String merged = LdapUtils.getPrintableAttribute(aMerged.get(attrName));
+
+					if (StringUtils.isBlank(merged)) {
+						if (StringUtils.isNotBlank(val0) || StringUtils.isNotBlank(val1)) {
+							fail(String.format("merged value: missed [%s] merging [%s] and [%s]",attrName, val0, val1));
+						}
+					} else {
+						if (! (merged.equals(val0) || merged.equals(val1))) {
+							fail(String.format("merged value[%s]: %s not  %s or %s",attrName, merged, val0, val1));
+						}
 					}
 				}
-			}
-		} // for
+			} // for
 
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			fail("error in test code");
+			fail("error in test code on item: " + vcfItem);
 		}
 	}
 

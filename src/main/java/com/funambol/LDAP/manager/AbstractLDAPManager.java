@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -339,7 +340,7 @@ public abstract class AbstractLDAPManager  extends BasicLdapManager implements L
 
 			throw new SyncSourceException("Strangely I can't create the entry");
 		}  catch (NamingException e) {
-			throw new SyncSourceException("Can't create entry " + mySubcontext + ": " + e.getMessage(), e);
+			throw new SyncSourceException("Can't create entry " + mySubcontext + "," + e.getResolvedName() + ": " + e.getMessage(), e);
 		}
 
 
@@ -369,7 +370,7 @@ public abstract class AbstractLDAPManager  extends BasicLdapManager implements L
 				mySubcontext = mySubcontext.concat("," + baseDn);
 			}
 			if (logger.isDebugEnabled())
-				logger.debug("Trying to write LDAPEntry in Ldap DN: "+ mySubcontext);
+				logger.debug("Trying to write LDAPEntry in Ldap DN: "+ mySubcontext + "," + getContext().getNameInNamespace());
 
 			newContext = getContext().createSubcontext(mySubcontext, entryAttributes);
 			close();
@@ -392,9 +393,9 @@ public abstract class AbstractLDAPManager  extends BasicLdapManager implements L
 			newEntryNsUniqueId = newId.get(0);		
 
 		}  catch (NameAlreadyBoundException e) {
-			logger.warn("Cannot insert into LDAP Entry: still existing " + e.getMessage());
+			logger.warn("Cannot insert into LDAP Entry: still existing " + e.getMessage(), e);
 		} catch (NamingException e) {
-			logger.warn("Cannot insert into LDAP Entry: " + e.getMessage());
+			logger.warn("Cannot insert into LDAP Entry: " + e.getMessage() +"; dn: " + e.getRemainingName() + "@" +e.getResolvedName() );
 			if (logger.isDebugEnabled()) {
 				try {
 					logger.debug(String.format("Context ns: %s " , getContext().getNameInNamespace()));
@@ -655,8 +656,10 @@ public abstract class AbstractLDAPManager  extends BasicLdapManager implements L
 					}
 				}
 			}
+		} catch (NameNotFoundException e) {
+			logger.warn("Can't find entry with filter " + filter, e);
 		} catch (NamingException e1) {
-			logger.warn(e1.getMessage());
+			logger.warn("Error in search with filter " + filter , e1);
 		}		
 
 		return returnValues;
@@ -808,16 +811,17 @@ public abstract class AbstractLDAPManager  extends BasicLdapManager implements L
         }
         List<String> uids = null;
 		try {        
-			// TODO Auto-generated method stub
-			String  twins= cdao.getTwinItems(si);
-			if (twins != null) {
+			String  twinSearch= cdao.getTwinItems(si);
+			if (twinSearch != null) {
 				// make a search to retrieve all uids
-					uids = this.idSearch(twins);
+					uids = this.idSearch(twinSearch);
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Empty twin search for id " + si.getKey().getKeyAsString());
+				}
 			}
 		} catch (LDAPAccessException e) {
-			// TODO Auto-generated catch block
 			logger.info("Error while finding twin items", e);
-			e.printStackTrace();
 		}
 		return uids;
 	}

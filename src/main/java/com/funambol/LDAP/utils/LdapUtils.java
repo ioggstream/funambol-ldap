@@ -26,6 +26,7 @@ public class LdapUtils {
 		SyncItemKey[] keys = new SyncItemKey[list.size()];
 		int i=0;
 		for (String s: list) {
+//			if ()
 			keys[i++] =  new SyncItemKey(s);
 		}
 		return keys;
@@ -46,7 +47,7 @@ public class LdapUtils {
 		try {
 			t = new Timestamp(mySimpleFormat.parse(s).getTime());
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			logger.debug(e.getMessage());
 		}
 	
 		return t;

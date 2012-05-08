@@ -35,7 +35,7 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.funambol.LDAP.engine.source.ExtendedLDAPContactsSyncSource;
+import com.funambol.LDAP.engine.source.LDAPContactsSyncSource;
 import com.funambol.LDAP.utils.Constants;
 import com.funambol.admin.AdminException;
 import com.funambol.admin.ui.SourceManagementPanel;
@@ -124,6 +124,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 	private JLabel entryFilterLabel = new JLabel();
 	private JTextField entryFilterValue= new JTextField();
 
+	private static java.awt.Font FONT_ARIAL = new java.awt.Font("Arial", 0, 12);
 	// ------------------------------------------------------------ Constructors
 
 	/**
@@ -179,7 +180,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		sourceUriLabel.setToolTipText("Choose a unique word");
 		sourceUriLabel.setFont(defaultFont);
 		sourceUriLabel.setBounds(new Rectangle(startX,baseline, col1Size, fontHeight));
-		sourceUriValue.setFont(new java.awt.Font("Arial", 0, 12));
+		sourceUriValue.setFont(FONT_ARIAL);
 		sourceUriValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		
@@ -187,7 +188,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		nameLabel.setToolTipText("Choose a word and set this into your client in order to use this connector");
 		nameLabel.setFont(defaultFont);
 		nameLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		nameValue.setFont(new java.awt.Font("Arial", 0, 12));
+		nameValue.setFont(FONT_ARIAL);
 		nameValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		
@@ -199,10 +200,10 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 
 		baseline += 30;		
 		providerUrlLabel.setText("LDAP URI: ");
-		providerUrlLabel.setToolTipText("eg. ldap://ldap.example.com , ldaps://ldap.example.com:fontHeight90 ");
+		providerUrlLabel.setToolTipText("eg. ldap://ldap.example.com , ldaps://ldap.example.com:390 ");
 		providerUrlLabel.setFont(defaultFont);
 		providerUrlLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		providerUrlValue.setFont(new java.awt.Font("Arial", 0, 12));
+		providerUrlValue.setFont(FONT_ARIAL);
 		providerUrlValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		
@@ -210,7 +211,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		ldapBaseLabel.setToolTipText("This is used to define where to store/read user's data.\nRead install.txt notes to use parameters");
 		ldapBaseLabel.setFont(defaultFont);
 		ldapBaseLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		ldapBaseValue.setFont(new java.awt.Font("Arial", 0, 12));
+		ldapBaseValue.setFont(FONT_ARIAL);
 		ldapBaseValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		// TODO contactDaoLabel, entryFilterLabel
@@ -218,7 +219,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		daoNameLabel.setToolTipText("piTypePerson, inetOrgPerson or organizationalPerson");
 		daoNameLabel.setFont(defaultFont);
 		daoNameLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		daoNameValue.setFont(new java.awt.Font("Arial", 0, 12));
+		daoNameValue.setFont(FONT_ARIAL);
 		daoNameValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		
@@ -226,7 +227,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		entryFilterLabel.setToolTipText("A valid  LDAP search filter, eg: (&(objectclass=inetOrgPerson)(active=1))");
 		entryFilterLabel.setFont(defaultFont);
 		entryFilterLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		entryFilterValue.setFont(new java.awt.Font("Arial", 0, 12));
+		entryFilterValue.setFont(FONT_ARIAL);
 		entryFilterValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;		
@@ -234,7 +235,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		ldapUserLabel.setToolTipText("LDAP Bind DN (username) to access the LDAP server");
 		ldapUserLabel.setFont(defaultFont);
 		ldapUserLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		ldapUserValue.setFont(new java.awt.Font("Arial", 0, 12));
+		ldapUserValue.setFont(FONT_ARIAL);
 		ldapUserValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;
@@ -242,7 +243,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		ldapPassLabel.setToolTipText("LDAP Bind DN password to access LDAP server");
 		ldapPassLabel.setFont(defaultFont);
 		ldapPassLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		ldapPassValue.setFont(new java.awt.Font("Arial", 0, 12));
+		ldapPassValue.setFont(FONT_ARIAL);
 		ldapPassValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		// follow referral
@@ -265,7 +266,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 		dbNameLabel.setToolTipText("Funambol DS table to store metadata. Use fnblcore");
 		dbNameLabel.setFont(defaultFont);
 		dbNameLabel.setBounds(new Rectangle(startX, baseline, col1Size, fontHeight));
-		dbNameValue.setFont(new java.awt.Font("Arial", 0, 12));
+		dbNameValue.setFont(FONT_ARIAL);
 		dbNameValue.setBounds(new Rectangle(col2X, baseline, col2Size, fontHeight));
 
 		baseline += 30;
@@ -353,17 +354,17 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 	 */
 	public void updateForm()
 	{
-		if (!(getSyncSource() instanceof ExtendedLDAPContactsSyncSource))
+		if (!(getSyncSource() instanceof LDAPContactsSyncSource))
 		{
 			notifyError(
 					new AdminException(
-							"This is not an ExtendedLDAPContactsSyncSource! Unable to process SyncSource values ("+getSyncSource()+")."
+							"This is not an "+LDAPContactsSyncSource.class.getName()+" Unable to process SyncSource values ("+getSyncSource()+")."
 					)
 			);
 			return ;
 		}
 
-		ExtendedLDAPContactsSyncSource syncSource = (ExtendedLDAPContactsSyncSource) getSyncSource();
+		LDAPContactsSyncSource syncSource = (LDAPContactsSyncSource) getSyncSource();
 
 		if (getState() == STATE_INSERT) {
 			confirmButton.setText("Add");
@@ -453,7 +454,7 @@ public class LDAPSyncSourceConfigPanel extends SourceManagementPanel implements 
 	 */
 	private void getValues()
 	{
-		ExtendedLDAPContactsSyncSource syncSource = (ExtendedLDAPContactsSyncSource)getSyncSource();
+		LDAPContactsSyncSource syncSource = (LDAPContactsSyncSource)getSyncSource();
 
 		syncSource.setSourceURI(sourceUriValue.getText().trim());
 		syncSource.setName(nameValue.getText().trim());

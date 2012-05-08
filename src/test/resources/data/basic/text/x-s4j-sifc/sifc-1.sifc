@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contact>
+<BusinessAddressCity>Any Town</BusinessAddressCity>
+<BusinessAddressCountry>USA</BusinessAddressCountry>
+<BusinessAddressPostOfficeBox>PO Box 202</BusinessAddressPostOfficeBox>
+<BusinessAddressPostalCode>22222</BusinessAddressPostalCode>
+<BusinessAddressState>NC</BusinessAddressState>
+<BusinessAddressStreet>2 Central Street</BusinessAddressStreet>
+<FirstName>Manuel</FirstName>
+<HomeAddressCity>Any Town</HomeAddressCity>
+<HomeAddressCountry>USA</HomeAddressCountry>
+<HomeAddressPostOfficeBox>PO Box 101</HomeAddressPostOfficeBox>
+<HomeAddressPostalCode>11111</HomeAddressPostalCode>
+<HomeAddressState>NC</HomeAddressState>
+<HomeAddressStreet>1 Residential Street</HomeAddressStreet>
+<LastName>Reichetseder</LastName>
+</contact>

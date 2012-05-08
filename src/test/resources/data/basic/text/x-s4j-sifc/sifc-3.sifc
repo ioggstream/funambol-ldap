@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contact>
+<FirstName>Seamus</FirstName>
+<LastName>Flaherty</LastName>
+<PrimaryTelephoneNumber>0</PrimaryTelephoneNumber>
+<OtherTelephoneNumber>1</OtherTelephoneNumber>
+<HomeTelephoneNumber>2</HomeTelephoneNumber>
+<BusinessTelephoneNumber>3</BusinessTelephoneNumber>
+<BusinessFaxNumber>4</BusinessFaxNumber>
+<MobileTelephoneNumber>5</MobileTelephoneNumber>
+</contact>

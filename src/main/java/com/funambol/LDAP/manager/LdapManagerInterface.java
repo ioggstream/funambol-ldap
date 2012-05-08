@@ -30,7 +30,7 @@ public interface LdapManagerInterface {
 	 * @return Array of ids of LDAP entries
 	 * @throws SyncSourceException if can't get connection
 	 */
-	public abstract List<String> getAllUids() throws LDAPAccessException;
+	abstract List<String> getAllUids() throws LDAPAccessException;
 
 	/**
 	 * Return all DNs of the addressbook
@@ -38,7 +38,7 @@ public interface LdapManagerInterface {
 	 * @throws SyncSourceException 
 	 * @throws LDAPAccessException 
 	 */
-	public abstract List<String> getAllDns() throws  LDAPAccessException;
+	abstract List<String> getAllDns() throws  LDAPAccessException;
 	
 	/**
 	 * Get the one LDAP entry by uid
@@ -46,7 +46,7 @@ public interface LdapManagerInterface {
 	 * @return one sized <i>List</i> containing the entry
 	 * @throws SyncSourceException 
 	 */
-	public abstract List<String> getOneEntry(String uid) throws LDAPAccessException;
+	abstract List<String> getOneEntry(String uid) throws LDAPAccessException;
 
 	/**
 	 * Creates a LDAP filter based on a timestamp to get all modified LDAP entries
@@ -55,7 +55,7 @@ public interface LdapManagerInterface {
 	 * @throws SyncSourceException 
 	 * @throws LDAPAccessException 
 	 */
-	public abstract List<String> getModifiedEntries(Timestamp since, Timestamp to) throws  LDAPAccessException;
+	abstract List<String> getModifiedEntries(Timestamp since, Timestamp to) throws  LDAPAccessException;
 
 	/**
 	 * Creates a LDAP filter based on a timestamp to get all new LDAP entries
@@ -64,12 +64,12 @@ public interface LdapManagerInterface {
 	 * @return Array of ids of LDAP entries
 	 * @throws SyncSourceException 
 	 */
-	public abstract List<String> getNewEntries(Timestamp since, Timestamp to) throws LDAPAccessException;
+	abstract List<String> getNewEntries(Timestamp since, Timestamp to) throws LDAPAccessException;
 
-	public abstract SearchResult searchLDAPEntryById(String uid) throws  LDAPAccessException, SyncSourceException;
-	public Attributes getLDAPEntryById(String uid) throws LDAPAccessException, SyncSourceException;
+	abstract SearchResult searchLDAPEntryById(String uid) throws  LDAPAccessException, SyncSourceException;
+	Attributes getLDAPEntryById(String uid) throws LDAPAccessException, SyncSourceException;
 	
-	public abstract SearchResult searchOneEntry(String filter,
+	abstract SearchResult searchOneEntry(String filter,
 			String[] attributes, int scope) throws LDAPAccessException;
 
 	/**
@@ -79,7 +79,7 @@ public interface LdapManagerInterface {
 	 * @throws NamingException 
 	 * @throws SyncSourceException 
 	 */
-	public HashMap<String,String> getLastModifiedMap(String filter) throws LDAPAccessException, NamingException;
+	HashMap<String,String> getLastModifiedMap(String filter) throws LDAPAccessException, NamingException;
 	
 	/**
 	 * Adds a new entry to the LDAP server 
@@ -89,36 +89,36 @@ public interface LdapManagerInterface {
 	 * TODO think about that code
 	 * @throws NameAlreadyBoundException if still exists
 	 */
-	public abstract String addNewEntry(SyncItem si) throws NameAlreadyBoundException;
+	abstract String addNewEntry(SyncItem si) throws NameAlreadyBoundException;
 
 	/**
 	 * Modify an entry on the LDAP server
 	 * @param si <i>SyncItem</i> to get modifications from
 	 * @throws SyncSourceException 
 	 */
-	public abstract void updateEntry(SyncItem si) throws LDAPAccessException, SyncSourceException;
+	abstract void updateEntry(SyncItem si) throws LDAPAccessException, SyncSourceException;
 
 	/**
 	 * Delete a contact on the LDAP server by dn(ldapId) XXX complex way to achieve it
 	 * @param si ID of the contact to delete
 	 * TODO with a good exception catching we can ensure the item is no more on the server
 	 */
-	public abstract void deleteEntry(SyncItem si, boolean soft);
-	public HashMap<String, String> getCache() ;
-	public void setCache(HashMap<String, String> cache);
+	abstract void deleteEntry(SyncItem si, boolean soft);
+	HashMap<String, String> getCache() ;
+	void setCache(HashMap<String, String> cache);
 
 	/**
 	 * Sets the timezone for timestamp convertion to LDAPTimestamps
 	 * @param tz LDAP server timezone (should be the same than synch server)
 	 */
-	public abstract void setTimeZone(TimeZone tz);
+	abstract void setTimeZone(TimeZone tz);
 
-	public abstract void setBaseDn(String s);
-	public abstract void setEntryFilter(String s);
-	public abstract String getEntryFilter();
+	abstract void setBaseDn(String s);
+	abstract void setEntryFilter(String s);
+	abstract String getEntryFilter();
 
-	public abstract String getLdapId();
-	public abstract void setLdapId(String s);
+	abstract String getLdapId();
+	abstract void setLdapId(String s);
 
 	/**
 	 * Initialize the Manager setting basic properties and the ContactDAO
@@ -131,7 +131,7 @@ public interface LdapManagerInterface {
 	 * @param contactDAO
 	 * @throws LDAPAccessException 
 	 */
-	public abstract void init(String providerUrl, String baseDn,
+	abstract void init(String providerUrl, String baseDn,
 			String ldapUser, String ldapPass, boolean followReferral,
 			boolean pooling, ContactDAOInterface contactDAO) throws LDAPAccessException;
 
@@ -139,7 +139,7 @@ public interface LdapManagerInterface {
 	 * Close the context and set this.context=null
 	 * subsequent call cause the context to be recreated with new parameter 
 	 */
-	public abstract void close();
+	abstract void close();
 
 	/**
 	 * Retrieve the uids of the twins of the given contact
@@ -148,8 +148,8 @@ public interface LdapManagerInterface {
 	 */
 	List<String> getTwins(SyncItem si);
 
-	public abstract void delete(String dn, boolean soft) throws LDAPAccessException;
+	abstract void delete(String dn, boolean soft) throws LDAPAccessException;
 
-	public abstract void setReconnectionNecessary(boolean b);
+	abstract void setReconnectionNecessary(boolean b);
 	
 }

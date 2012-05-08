@@ -187,9 +187,9 @@ public class ContactDAO implements ContactDAOInterface {
 					+ syncItem.getKey().getKeyAsString()
 					+ " from vCard to a Contact object of type: " + syncItem.getType());
 			
-            if (Configuration.getConfiguration().isDebugMode()) 
+            if (Configuration.getConfiguration().isDebugMode() && logger.isTraceEnabled()) {
             	logger.trace("Item content follows: " + (new String(syncItem.getContent())));
-            
+            }
 			return null;
 		}
 		byte[] content = syncItem.getContent();
@@ -205,25 +205,26 @@ public class ContactDAO implements ContactDAOInterface {
 					+ syncItem.getKey().getKeyAsString()
 					+ " from vCard to a Contact object: " + e.getMessage());
 			
-            if (Configuration.getConfiguration().isDebugMode()) 
+            if (Configuration.getConfiguration().isDebugMode() && logger.isTraceEnabled()) { 
             	logger.trace(" vCard follows: " + (new String(content)));
+            }
 			return null;
 		}
 
 		if (syncItem.getState() == SyncItemState.UPDATED) {
 			contact.setUid((String) syncItem.getKey().getKeyValue());
 		}
-        if (Configuration.getConfiguration().isDebugMode() && (logger.isTraceEnabled())) {
-			logger.info("Original content");
-			logger.info("----------ORIGINAL------");
-			logger.info(content.toString());
+        if (Configuration.getConfiguration().isDebugMode() && logger.isTraceEnabled()) {
+			logger.trace("Original content");
+			logger.trace("----------ORIGINAL------");
+			logger.trace(content.toString());
 
 			for (int i = 0; i < content.length; i++)
-				logger.info("" + (char) (content[i]));
+				logger.trace("" + (char) (content[i]));
 
-			logger.info("Converted SyncItem to Contact");
-			logger.info("----------ORIGINAL------");
-			logger.info(new String(content));
+			logger.trace("Converted SyncItem to Contact");
+			logger.trace("----------ORIGINAL------");
+			logger.trace(new String(content));
 		}
 		return contact;
 	}
@@ -382,6 +383,7 @@ public class ContactDAO implements ContactDAOInterface {
 									(String) streets.nextElement());
 						}
 
+					}
 						if (attrs.get("c") != null) {
 							business.getAddress().getCountry().setPropertyValue(
 									(String) attrs.get("c").get());
@@ -401,7 +403,7 @@ public class ContactDAO implements ContactDAOInterface {
 							business.getAddress().getStreet().setPropertyValue(
 									(String) attrs.get("postalAddress").get());
 						}
-					}
+					
 
 					if (attrs.get("o") != null) {
 						business.getCompany().setPropertyValue(

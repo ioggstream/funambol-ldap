@@ -1,6 +1,5 @@
 package com.funambol.LDAP.manager;
 
-import com.funambol.LDAP.admin.LDAPSyncSourceConfigPanel;
 import com.funambol.LDAP.dao.ContactDAOInterface;
 import com.funambol.LDAP.dao.impl.ContactDAO;
 import com.funambol.LDAP.dao.impl.OrganizationalPersonContactDAO;

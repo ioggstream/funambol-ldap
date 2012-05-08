@@ -12,6 +12,7 @@ import javax.naming.directory.BasicAttributes;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import com.funambol.LDAP.BaseTestCase;
 import com.funambol.LDAP.dao.ContactDAOInterface;
@@ -22,8 +23,8 @@ import com.funambol.common.pim.converter.ContactToVcard;
 import com.funambol.common.pim.converter.ConverterException;
 import com.funambol.common.pim.vcard.ParseException;
 import com.funambol.common.pim.vcard.VcardParser;
+import com.funambol.framework.engine.InMemorySyncItem;
 import com.funambol.framework.engine.SyncItem;
-import com.funambol.framework.engine.SyncItemImpl;
 import com.funambol.framework.engine.SyncItemKey;
 import com.funambol.framework.engine.SyncItemState;
 
@@ -35,6 +36,7 @@ public class ContactDAOTest extends BaseTestCase {
 
 	public static final String USER_FULLNAME = "Roberto Utenteditest Polli"; 
 
+	@Test
 	public void testCreateContact() {
 		// convert an ldap entry made of Attributes to a vcard
 		ContactDAOInterface cdao = new ContactDAO();
@@ -53,6 +55,7 @@ public class ContactDAOTest extends BaseTestCase {
 
 	}
 
+	@Test
 	public void testGetter() {
 		logger.info("ContactDAO has no softDelete attribute");
 		ContactDAOInterface cdao = new ContactDAO();
@@ -64,6 +67,7 @@ public class ContactDAOTest extends BaseTestCase {
 	 * test conversion ldap2Contact and back
 	 * @throws NamingException
 	 */
+	@Test
 	public void testLdapPIM_goAndForth_1() throws NamingException {
 
 		Attributes attrs= getMockSimpleEntry();		
@@ -99,12 +103,18 @@ public class ContactDAOTest extends BaseTestCase {
 	/**
 	 * Convert basic vcf to to Ldap Attributes, then back again to vcf
 	 * this check entry rdn and timestamp
+	 * @Ignore because inetorgperson doesn't support enough attributes
 	 */
+	@Test
+	@Ignore
 	public void testVcs2ToLdap_basic() {
 		// convert a vcard entry to ldap
 		String vcards[] = { 
-				"vcard-1.vcf", "vcard-2.vcf",
-				"vcard-3.vcf", "vcard-4.vcf", "vcard-5.vcf"};
+				 "vcard-1.vcf",
+				"vcard-2.vcf",
+				"vcard-3.vcf", 
+				"vcard-4.vcf",
+				"vcard-5.vcf"};
 
 		for (String vcf : vcards) {
 			try {
@@ -118,7 +128,7 @@ public class ContactDAOTest extends BaseTestCase {
 				Contact pimC1 =cdao.createContact(attrs);
 				assertNotNull(pimC1);
 				String c1  = vcardConverter.convert(pimC1);
-				assertEquals(0, LdapUtils.compareMultiLine(c0, c1).size());
+				assertEquals( "Error comparig item " + vcf, 0, LdapUtils.compareMultiLine(c0, c1).size());
 
 			} catch (ParseException e) {
 				logger.error(e.getMessage());
@@ -131,8 +141,9 @@ public class ContactDAOTest extends BaseTestCase {
 			}
 		}
 	}
+	@Test
 	@Ignore
-	public void _testVcs3ToLdap_basic() {
+	public void testVcs3ToLdap_basic() {
 		// convert a vcard entry to ldap
 		String vcards[] = { 
 		"vcard3.0-1.vcf" };
@@ -166,6 +177,7 @@ public class ContactDAOTest extends BaseTestCase {
 	/**
 	 * Convert basic syncitem  to to Ldap Attributes, then back again to vcf
 	 */
+	@Test
 	public void testSyncItemToLdap_basic() {
 		// convert a vcard entry to ldap
 		String vcards[] = { 
@@ -176,7 +188,7 @@ public class ContactDAOTest extends BaseTestCase {
 		for (String vcf : vcards) {
 			try {
 				String c0 = getResourceAsString(FCTF_BASIC +  vcf);
-				SyncItem item = new SyncItemImpl(	
+				SyncItem item = new InMemorySyncItem(	
 						null, 
 						new SyncItemKey("-1"),
 						null, 
@@ -230,8 +242,8 @@ public class ContactDAOTest extends BaseTestCase {
 	/**
 	 * use all vcards tested in pim
 	 */
-	@Ignore
-	public void _testVcsToLdap_advanced() {
+	@Test
+	public void testVcsToLdap_advanced() {
 		// convert a vcard entry to ldap
 		String vcf="";
 

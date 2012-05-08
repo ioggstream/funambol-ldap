@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="1.6.0" class="java.beans.XMLDecoder">
 	<object
-		class="com.funambol.LDAP.engine.source.ExtendedLDAPContactsSyncSource">
+		class="com.funambol.LDAP.engine.source.LDAPContactsSyncSource">
 		<void property="name">
 			<string>ldap</string>
 		</void>
@@ -9,7 +9,7 @@
 			<string>ldap</string>
 		</void>
 		<void property="dbName">
-			<string>fnblds</string>
+			<string>fnblcore</string>
 		</void>
 		<void property="daoName">
 			<string>piTypePerson</string>
@@ -30,16 +30,16 @@
 			<string>(objectclass=piTypePerson)</string>
 		</void>
 		<void property="ldapPass">
-			<string>password</string>
+			<string>admin</string>
 		</void>
 		<void property="ldapUser">
-			<string>cn=directory manager</string>
+			<string>uid=admin,dc=babel,dc=it</string>
 		</void>
 		<void property="followReferral">
 			<boolean>false</boolean>
 		</void>
-		<void property="connectionPooling">
-			<boolean>false</boolean>
+		<void property="softDelete">
+			<boolean>true</boolean>
 		</void>
 		<void property="info">
 			<object class="com.funambol.framework.engine.source.SyncSourceInfo">

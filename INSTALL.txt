@@ -1,11 +1,11 @@
 ------------------------------
-Funambol LDAP Connector Version 7.0
+Funambol LDAP Connector Version 7.1
 Installation
 ------------------------------
 
 Connector capabilities
 ----------------------
-The LDAP Connector 7.0 
+The LDAP Connector 7.1 
  * can synchronize only contacts items using VCARD format
  * allows Ldap Authentication and auto-provisioning
  * allows mailserver account auto-provisioning
@@ -18,9 +18,14 @@ The LDAP Connector, in order to be installed, requires:
 
 Building requirements
 ----------------------
-- A working installation of DS-SERVER for running tests
+- A working + running installation of DS-SERVER for running tests
 - Email connector for building LdapMailUserProvisioningOfficer
 - java 1.6
+
+Testing
+----------------------
+- The Building environment
+- A working Ldap server, with src/test/resources/ldap/ ldifs installed
 
 Installation steps
 ------------------

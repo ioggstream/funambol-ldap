@@ -18,29 +18,29 @@ public interface ItemMap {
 	 * @return
 	 * @throws DBAccessException 
 	 */
-	 public HashMap<String,String> loadMap() throws DBAccessException;
+	 HashMap<String,String> loadMap() throws DBAccessException;
 	
 	/**
 	 * Deletes all items from server
 	 * @throws DBAccessException 
 	 */
-	public void clearMap() throws DBAccessException;
+	void clearMap() throws DBAccessException;
 	
-	public void updateMap(HashMap<String, String> mappa) throws DBAccessException;
+	void updateMap(HashMap<String, String> mappa) throws DBAccessException;
 	
 	
 	//
 	// getter/setter
 	//
-	public void setPrincipal(Long s);
-	public Long getPrincipal();
+	void setPrincipal(Long s);
+	Long getPrincipal();
 	
-	public void setSourceUri(String s);
-	public String getSourceUri();
+	void setSourceUri(String s);
+	String getSourceUri();
 
-	public void setUsername(String string);
+	void setUsername(String string);
 
-	public void init() throws NamingException;
+	void init() throws NamingException;
 
 
 }

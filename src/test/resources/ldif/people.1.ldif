@@ -1,0 +1,46 @@
+version: 1
+
+dn: o=bigcompany,dc=babel,dc=it
+objectClass: top
+objectClass: organization
+objectClass: babmwCompany
+o: bigcompany
+
+dn: dc=bigdomain.net,o=bigcompany,dc=babel,dc=it
+objectClass: top
+objectClass: domain
+objectClass: babmwcompany
+objectClass: calentry
+dc: bigdomain.net
+calCalURI: localhost
+mailHost: localhost
+
+dn: ou=People,dc=bigdomain.net,o=bigcompany,dc=babel,dc=it
+objectClass: top
+objectClass: organizationalunit
+ou: People
+
+dn: uid=Aaccf.Amar,ou=People,dc=bigdomain.net,o=bigcompany,dc=babel,dc=it
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: babmware
+objectClass: babmwCompany
+objectClass: organizationalPerson
+objectClass: mailRecipient
+objectClass: person
+objectClass: calEntry
+objectClass: ipUser
+cn: Aaccf
+sn: Amar
+calCalURI: http://calendar.example.com/ucaldav/user/aaccf.amar@bigdomain.net/cal
+ endar
+district: 100
+facsimileTelephoneNumber: 
+givenName: Aaccf
+mail: aaccf.amar@bigdomain.net
+mailHost: localhost
+psRoot: ldap://ldap.example.com:389/ou=Aaccf.Amar@bigdomain.net,dc=bigdomain
+ .net,o=db2
+uid: Aaccf.Amar
+userPassword:: e1NIQX1XNnBoNU1tNVB6OEdnaVVMYlBnekczN21qOWc9
+

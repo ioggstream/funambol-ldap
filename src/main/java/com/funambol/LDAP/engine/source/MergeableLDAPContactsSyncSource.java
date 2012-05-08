@@ -6,7 +6,7 @@ import com.funambol.framework.engine.source.MergeableSyncSource;
 import com.funambol.framework.engine.source.SyncSourceException;
 
 public class MergeableLDAPContactsSyncSource extends
-		ExtendedLDAPContactsSyncSource  implements MergeableSyncSource {
+		LDAPContactsSyncSource  implements MergeableSyncSource {
 
 	/**
 	 * 
@@ -14,7 +14,11 @@ public class MergeableLDAPContactsSyncSource extends
 	private static final long serialVersionUID = 1351151620585100963L;
 
 	/**
-	 * merge two sync item and eventually updates client with info stored on server
+	 * merge two sync item and eventually updates client with info merged on server
+	 * 
+	 * @param syncItem - the client syncItem
+	 * @param syncItemKey - the key of the item on server
+	 * @return true if merge successful
 	 */
 	public boolean mergeSyncItems(SyncItemKey syncItemKey, SyncItem syncItem)
 			throws SyncSourceException {

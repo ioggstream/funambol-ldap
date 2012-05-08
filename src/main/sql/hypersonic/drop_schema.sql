@@ -1,5 +1,5 @@
 --
--- Initialization data for the OX module
+-- Drop schema for the Ldap module
 --
 -- @version $Id: drop_schema.sql,v 1.0 2009/04/22 rpolli $
 --

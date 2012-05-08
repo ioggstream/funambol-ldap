@@ -1,0 +1,7 @@
+version: 1
+
+dn: ou=Aaccf.Amar@bigdomain.net,dc=bigdomain.net,o=db2
+objectClass: organizationalUnit
+objectClass: top
+ou: Aaccf.Amar@bigdomain.net
+

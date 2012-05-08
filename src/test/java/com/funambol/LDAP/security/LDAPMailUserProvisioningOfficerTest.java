@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.funambol.LDAP.TestConstants;
 import com.funambol.email.exception.DBAccessException;
 import com.funambol.email.exception.InboxListenerConfigException;
 import com.funambol.email.model.MailServer;
@@ -21,9 +23,14 @@ import com.funambol.framework.tools.beans.BeanException;
 import com.funambol.server.admin.AdminException;
 import com.funambol.server.config.Configuration;
 import com.funambol.server.db.DataSourceContextHelper;
+import com.funambol.tools.database.DBHelper;
 
-public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOfficerTest {
+public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOfficerTest  implements TestConstants {
 
+	private static final String SMTP_SERVER = "smtp.babel.it";
+	private static final String IMAP_SERVER = "imap.babel.it";
+	private static final String SMTP_SERVER_PORT = "smtp://smtp.babel.it:25";
+	private static final String IMAP_SERVER_PORT = "imap://imap.babel.it:143";
 	/**
 	 * 
 	 */
@@ -32,17 +39,20 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 	private static final String MSA_BEAN_NAME = "./com/funambol/server/security/DefaultMailServerAccount.xml";
 	
 	protected LDAPMailUserProvisioningOfficer lupo = null;
-	protected static final Sync4jUser USER = new Sync4jUser("daniele@demo1.net", "daniele", 
-			"daniele@demo1.net", "", "", new String[] {"sync_user"});
-	protected static final Sync4jUser USER_UID = new Sync4jUser("daniele", "daniele", 
-			"daniele@demo1.net", "", "", new String[] {"sync_user"});
+	protected static final Sync4jUser USER = new Sync4jUser(USER_MAIL, USER_MAIL_PASSWORD, 
+			USER_MAIL, "", "", new String[] {"sync_user"});
+	protected static final Sync4jUser USER_UID = new Sync4jUser(USER_MAIL_UID, USER_MAIL_PASSWORD, 
+			USER_MAIL, "", "", new String[] {"sync_user"});
 
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	@Override
-	protected void setUp() throws Exception {
+	@Before
+protected void setUp() throws Exception {
 		super.setUp();
-
+		
+		DBHelper.executeStatement(this.userds.getRoutedConnection(USER_MAIL), create_email_schema);
+		
 		MailServer defaultMsa = (MailServer) Configuration.getConfiguration().getBeanInstanceByName(MSA_BEAN_NAME);
 		lupo = (LDAPMailUserProvisioningOfficer) Configuration.getConfiguration().getBeanInstanceByName(BEAN_NAME);
 		logger.info(lupo);
@@ -53,19 +63,19 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		this.getUserManager().deleteUser(USER);
 		this.getUserManager().deleteUser(USER_UID);
-
-
+		DBHelper.executeStatement(userds.getRoutedConnection(USER_MAIL), drop_email_schema);
 		lupo = null;
 		DataSourceContextHelper.closeDataSources();
+		super.tearDown();
 	}
 
 
 
 
-	public void testGetServerUri() {
+	@Test
+public void testGetServerUri() {
 
 		List<String> a= new ArrayList<String> ();
 		a.add("posta.babel.it");
@@ -92,16 +102,16 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 	public MailServer testGenerateMailServer() throws URISyntaxException, BeanException {
 		
 		// 1- override bean params
-		URI imap = new URI("imap://imap.babel.it:143");
-		URI smtp = new URI("smtp://smtp.babel.it:25");
+		URI imap = new URI(IMAP_SERVER_PORT);
+		URI smtp = new URI(SMTP_SERVER_PORT);
 
 		MailServer ms = lupo.generateMailServer(imap, smtp);
 		assertNotNull(ms);
 		assertEquals(imap.getHost(), ms.getInServer());
 		
 		// 2- override just hostname, not port/proto
-		imap = new URI("imap.babel.it");
-		smtp = new URI("smtp.babel.it");
+		imap = new URI(IMAP_SERVER);
+		smtp = new URI(SMTP_SERVER);
 
 		ms = lupo.generateMailServer(imap, smtp);
 		assertNotNull(ms);
@@ -113,7 +123,8 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 
 
 	// bind as an unexisting user, check creation, check MSA, delete MSA, delete user
-	public void testBindUserToLdap() {
+	@Test
+public void testBindUserToLdap() {
 		try {
 			// this method won't check user credential but retrieves DN 
 			//		Sync4jUser myUser = lupo.bindUserToLdap(USER.getUsername(), "badPassword");
@@ -152,12 +163,13 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 	/**
 	 * Authenticate user searching by email 
 	 */
-	public void testFindUser_byMail() {
+	@Test
+public void testFindUser_byMail() {
 		logger.info("testFindUser");
 		try {
 			// prepare data
-			lupo.setSearchBindDn(DM_USER);
-			lupo.setSearchBindPassword(DM_PASS);
+			lupo.setSearchBindDn(credential.adminUser);
+			lupo.setSearchBindPassword(credential.adminPassword);
 
 			Authentication auth = new Authentication();
 			auth.setUsername(USER.getUsername());
@@ -191,13 +203,14 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 	/**
 	 * Authenticate user searching by uid 
 	 */
-	public void testFindUser_ByUid() {
+	@Test
+public void testFindUser_ByUid() {
 		logger.info("testFindUser_ByUid");
 		try {
 			lupo.setUserSearch("(uid=%s)");
-			lupo.setBaseDn("o=babel s.r.l," + ROOT_DN);
-			lupo.setSearchBindDn(DM_USER);
-			lupo.setSearchBindPassword(DM_PASS);
+			lupo.setBaseDn(ROOT_DN);
+			lupo.setSearchBindDn(credential.adminUser);
+			lupo.setSearchBindPassword(credential.adminPassword);
 
 			Authentication auth = new Authentication();
 			auth.setUsername(USER_UID.getUsername());
@@ -210,6 +223,7 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 			authData = new String(USER_UID.getUsername()+":"+auth.getPassword()).getBytes();
 			auth.setData(new String(Base64.encode(authData)) );
 			Sync4jUser ret  = lupo.authenticateUser(new Cred(auth));
+			logger.info("Authenticating user: "+ USER_UID.getUsername());
 			assertNotNull(ret);
 			this.getUserManager().deleteUser(ret);
 
@@ -233,7 +247,8 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 	 * Authenticate and provision MailServerAccount for user searching by mail. 
 	 * @throws DBAccessException 
 	 */
-	public void testAuthenticateUser() throws DBAccessException {
+	@Test
+public void testAuthenticateUser() throws DBAccessException {
 		logger.warn("testAuthenticateUser");
 
 
@@ -277,14 +292,15 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 
 
 
-	public void testInsertAndUpdateMailServerAccount() throws DBAccessException {
+	@Test
+public void testInsertAndUpdateMailServerAccount() throws DBAccessException {
 		URI imap, smtp;
 		Long msid = null;
 		try {
-			imap = new URI("imap://imap.babel.it:143");
-			smtp = new URI("smtp://smtp.babel.it:25");
-			lupo.smtpServer = "smtp://smtp.babel.it:25";
-			lupo.imapServer = "imap://imap.babel.it:143";
+			imap = new URI(IMAP_SERVER_PORT);
+			smtp = new URI(SMTP_SERVER_PORT);
+			lupo.smtpServer = SMTP_SERVER_PORT;
+			lupo.imapServer = IMAP_SERVER_PORT;
 			// create a mailserver
 			MailServer ms = lupo.generateMailServer(imap, smtp);
 			ms.setMailServerId("-1");
@@ -337,7 +353,8 @@ public class LDAPMailUserProvisioningOfficerTest extends LDAPUserProvisioningOff
 
 	}
 
-	public void testInsertAndUpdateMailServerAccount_2() throws DBAccessException {
+	@Test
+public void testInsertAndUpdateMailServerAccount_2() throws DBAccessException {
 		URI imap,smtp;
 		Long msid = null;
 		MailServer ms = null;

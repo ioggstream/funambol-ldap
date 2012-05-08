@@ -1,4 +1,21 @@
 ------------------------------
+Funambol LDAP Connector Version 7.1.0
+------------------------------
+- Renamed ExtendedLDAPContactsSyncSource to LDAPContactsSyncSource
+- TODO: support for item twinning
+- TODO: soft delete
+
+------------------------------
+Funambol LDAP Connector Version 7.0.0
+------------------------------
+- Support for various objectclasses and ldap server (ExtendedLDAPSyncSource)
+- Added fnbl_ldap_item table
+- Connection pooling support (see jndi documentation)
+- Created LDAP user and MailUser provisioning Officer
+- Many optimizations
+
+
+------------------------------
 Funambol LDAP Connector Version 6.5.1
 ------------------------------
 - Removed link to LDAP external library, migration to JNDI

@@ -3,10 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>ldap-connector</artifactId>
 	<groupId>modules</groupId>
-	<version>7.0.1</version>
+	<version>7.1.0-SNAPSHOT</version>
 	<name>Funambol LDAP Connector</name>
-	<packaging>s4j</packaging>
-    
+    <packaging>s4j</packaging>
     <!--
         SITE
     -->
@@ -15,6 +14,11 @@
 			<id>local</id>
 			<url>file://${basedir}/target/deploy/site</url>
 		</site>
+		<snapshotRepository>
+          		<id>local-m2</id>
+          		<name>local M2 Repository</name>
+          		<url>file:///${basedir}/target/deploy/site</url>
+      		</snapshotRepository>
 	</distributionManagement>
 	<url>https://ldap-connector.forge.funambol.org/</url>
 	<parent>
@@ -80,7 +84,7 @@
 		<dependency>
 			<artifactId>core-framework</artifactId>
 			<groupId>funambol</groupId>
-			<version>7.0.1</version>
+			<version>9.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -92,26 +96,26 @@
 		<dependency>
 			<artifactId>server-framework</artifactId>
 			<groupId>funambol</groupId>
-			<version>7.1.0</version>
+			<version>9.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>funambol</groupId>
 			<artifactId>ds-server</artifactId>
-			<version>7.1.0</version>
+			<version>9.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>funambol</groupId>
 			<artifactId>pim-framework</artifactId>
-			<version>7.1.1</version>
+			<version>9.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		
 				<dependency>
 			<artifactId>email-core</artifactId>
 			<groupId>funambol</groupId>
-			<version>7.0.6</version>
+			<version>9.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!--  External dependencies -->
@@ -149,7 +153,47 @@
             <version>4.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring</artifactId>
+        	<version>2.5.6.SEC01</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring-mock</artifactId>
+        	<version>2.0.8</version>
+        	<type>jar</type>
+        	<scope>compile</scope>
+        </dependency>
+        <dependency>
+        	<groupId>funambol</groupId>
+        	<artifactId>test-addons</artifactId>
+        	<version>1.0.6</version>
+        	<scope>test</scope>
+        </dependency>
 
+        <dependency>
+        	<groupId>org.apache.directory.server</groupId>
+        	<artifactId>apacheds-server-integ</artifactId>
+        	<version>1.5.7</version>
+        	<type>jar</type>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-log4j12</artifactId>
+        	<version>1.6.1</version>
+        	<type>jar</type>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-api</artifactId>
+        	<version>1.6.1</version>
+        	<type>jar</type>
+        	<scope>test</scope>
+        </dependency>
 	</dependencies>
 	<issueManagement>
 		<system>CollabNet</system>
@@ -160,6 +204,11 @@
         Build plug-ins
     -->
 	<build>
+	<resources>
+	<resource><directory>src/main/sql</directory></resource>
+	</resources>
+		<testResources>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -199,7 +248,31 @@
 				<version>1.0.8</version>
 				<extensions>true</extensions>
 			</plugin>
+			<!--  plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
+				<executions>
+					<execution>
+						<id>resources</id>
+						<phase>compile</phase>
+						<inherited>false</inherited>
+						<goals>
+							<goal>resources:testResources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin-->
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>funambol</groupId>
+					<artifactId>funambol-plugin</artifactId>
+					<version>1.0.8</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<repositories>
 		<repository>

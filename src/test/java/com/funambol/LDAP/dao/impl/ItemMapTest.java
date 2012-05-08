@@ -4,24 +4,30 @@ import java.util.HashMap;
 
 import javax.naming.NamingException;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import com.funambol.LDAP.BaseTestCase;
 import com.funambol.LDAP.dao.ItemMap;
 import com.funambol.LDAP.exception.DBAccessException;
 
-public class ItemMapTest extends BaseTestCase {
-
+public class ItemMapTest extends BaseTestCase  {
+	
 	@Override
-	protected void setUp() throws Exception {
-		// TODO Auto-generated method stub
+	@Before
+protected void setUp() throws Exception {
 		super.setUp();
+		
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
+
 		super.tearDown();		
+
 	}
-	public void testInit() {
+	@Test
+public void testInit() {
 		
 		ItemMap item = new ItemMapImpl();
 		item.setPrincipal(-1L);
@@ -38,7 +44,8 @@ public class ItemMapTest extends BaseTestCase {
 		
 	}
 	
-	public void testClean() {
+	@Test
+public void testClean() {
 		ItemMap item = new ItemMapImpl();
 		item.setPrincipal(-1L);
 		item.setSourceUri("mockSourceUri");

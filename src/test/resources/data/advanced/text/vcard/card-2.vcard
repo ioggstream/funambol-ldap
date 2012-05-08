@@ -1,0 +1,18 @@
+BEGIN:VCARD
+ADR:;;P.zza S.Benedetto da Norcia\, 33;Pomezia;Roma;00040;Italy
+EMAIL:pluto@babel.it
+FN:Pippo Pluto
+N:Pluto;Pippo;;;
+ORG:Babel S.r.l.;AST
+REV:2009-03-05T11:58:42
+TEL;TYPE=WORK:+39.06.\12\12\12
+TEL;TYPE=FAX:+39.06.123123123
+TEL;TYPE=CELL:+39.340.123123123
+TITLE:Technical Engineer
+UID:wj6dO4mcnh
+URL:http://www.babel.it/
+VERSION:3.0
+X-messaging/icq-All:12345657
+X-mozilla-html:FALSE
+END:VCARD
+

@@ -245,6 +245,7 @@ extends LDAPUserProvisioningOfficer implements Constants {
 				if (log.isTraceEnabled()) {
 					log.trace("User '" + username + "' found");
 				}
+
 				// update password on account and msaccount
 				String storedPassword = dsUser.getPassword();
 				if (!password.equals(storedPassword)) {
@@ -260,20 +261,19 @@ extends LDAPUserProvisioningOfficer implements Constants {
 							log.trace( "Can't update password for user." + e.getMessage());
 						}	
 					}
-				}
-				
-				
-				// Just take the roles from Funambol
-				ldapUser.setRoles(dsUser.getRoles());
-				
-				if (PORTAL_DEVICE_ID.equals(deviceId))
-					return ldapUser;
-				
-				// fail if user is not a SyncUser
-				if (! checkUserRole(dsUser)) {
-					return null;
-				}
 
+					// Just take the roles from Funambol
+					ldapUser.setRoles(dsUser.getRoles());
+					
+					if (PORTAL_DEVICE_ID.equals(deviceId))
+						return ldapUser;
+					
+					// fail if user is not a SyncUser
+					if (! checkUserRole(dsUser)) {
+						return null;
+					}
+
+				} 
 			}
 		} catch (PersistentStoreException e) {
 			log.error("Error inserting a new user", e);
@@ -285,7 +285,7 @@ extends LDAPUserProvisioningOfficer implements Constants {
 		// Otherwise a new principal will be created
 		//
 		try {
-    		handlePrincipal(username, deviceId);
+			handlePrincipal(username, deviceId);
 			handleMailServerAccount(dsUser);
 		} catch (PersistentStoreException e) {
 			log.error("Error handling the principal", e);

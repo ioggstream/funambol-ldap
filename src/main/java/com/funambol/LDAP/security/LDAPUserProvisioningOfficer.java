@@ -338,6 +338,7 @@ public class LDAPUserProvisioningOfficer extends AbstractLdapOfficer
                 return ldapUser;
             }
 
+            
 			//
 			// Check the roles
 			//
@@ -371,6 +372,7 @@ public class LDAPUserProvisioningOfficer extends AbstractLdapOfficer
 		// Otherwise a new principal will be created
 		//
 		try {
+            // skip principal creation in case of  Portal
 			handlePrincipal(username, deviceId);
 		} catch (PersistentStoreException e) {
 			log.error("Error handling the principal", e);

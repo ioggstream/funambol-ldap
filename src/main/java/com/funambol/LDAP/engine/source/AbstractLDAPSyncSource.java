@@ -83,6 +83,15 @@ implements SyncSource, Serializable, LazyInitBean {
 	protected String ldapUser;
 	protected String ldapPass;
 
+	//
+	// dynamic data
+	//
+	protected int syncMode;
+
+	// manager
+	protected ContactDAOInterface contactDAO = null;
+	protected LDAPState ldapState = null;
+	
 	/**
 	 * softDelete should be enabled and supported by the DAO
 	 */
@@ -148,26 +157,15 @@ implements SyncSource, Serializable, LazyInitBean {
 	public void setFollowReferral(boolean followReferral) {
 		this.followReferral = followReferral;
 	}
+	public boolean isFollowReferral() {
+		return followReferral;
+	}
 	public void setConnectionPooling(boolean isConnectionPooling) {
 		this.connectionPooling = isConnectionPooling;
 	}
 	public boolean isConnectionPooling() {
 		return connectionPooling;
 	}
-	public boolean isFollowReferral() {
-		return followReferral;
-	}
-
-
-	//
-	// dynamic data
-	//
-	protected int syncMode;
-
-	// manager
-	protected ContactDAOInterface contactDAO = null;
-	protected LDAPState ldapState = null;
-
 
 	private String deviceCharset = null;
 	public String getDeviceCharset() {
@@ -192,7 +190,7 @@ implements SyncSource, Serializable, LazyInitBean {
 	 * The context of the sync
 	 */
 	protected SyncContext syncContext = null;
-	public SyncContext getSyncContext() {
+	protected SyncContext getSyncContext() {
 		if (logger.isDebugEnabled())
 			logger.debug("getSyncContext(" + syncContext + " , ...)");
 		return syncContext;
@@ -219,7 +217,7 @@ implements SyncSource, Serializable, LazyInitBean {
 	 * - PiTypeContactDAO
 	 * - ContactDAO
 	 */
-	public void initContactDAO(String className) throws SyncSourceException {
+	protected void initContactDAO(String className) throws SyncSourceException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting class instance: " + getDaoName());
 		}
@@ -276,121 +274,6 @@ implements SyncSource, Serializable, LazyInitBean {
 			initialized = true;
 		}
 	}
-	/**
-	 * Expand bean fields userSearch, baseDn, providerUrl with funambol principal data.
-	 * With a standard officer, replace 
-	 *  - username =~ %u@%d
-	 *  - username = %s
-	 *  - principal = %principal
-	 *  
-	 * Using LdapUserProvisioningOfficer (LDAPUser) enables 
-	 * - setting providerUrl=psRoot .
-	 * - basedn = %D
-	 * @param principal
-	 */
-	protected void expandSearchAndBaseDn(Sync4jPrincipal principal ) {
-		if (principal != null)   {
-			String myPrincipalID = "" + principal.getId();
-			baseDn = baseDn.replaceAll("%principal", myPrincipalID);
-
-			String username = principal.getUsername();
-
-			// manage LDAPUser attributes
-			if (principal.getUser() instanceof LDAPUser) {
-				LDAPUser user = (LDAPUser) principal.getUser();
-
-				if (StringUtils.isNotEmpty(user.getPsRoot())) {
-					providerUrl = user.getPsRoot();
-					baseDn = "";
-					if (logger.isDebugEnabled()) {
-						logger.debug("Connecting to "+ providerUrl + "/" + baseDn + "?" + getUserSearch());
-					}
-					return;
-				} else {
-					if (StringUtils.isNotEmpty(user.getUserDn())) {
-						baseDn = baseDn.replaceAll("%D", user.getUserDn());
-					}
-				}
-			} 
-
-			if (username != null) {
-				// if username  is an email substitute %u e %d in baseDn:  
-				// eg. basedn: dc=%d, o=babel, dc=top
-				// eg. basedn: dc=%d, o=referral
-				// eg. ldapUrl: ldap://%d.babel.it:234/
-				if (username.matches(Constants.EMAIL_PATTERN)) {
-					String tmp[] = username.split("@");
-					String myUsername = tmp[0];
-					String myDomain   = (tmp.length >1) ? tmp[1] : ""; // if domain is not set, use just %u
-					if (logger.isTraceEnabled()) {
-						logger.trace("username is [" +username+"," + myUsername +", " + myDomain + "]");				
-					}
-
-
-					// expand %u and %d in ldapUrl and baseDn
-					// this enables elastic funambol support:D
-					baseDn = baseDn.replaceAll("%u",myUsername)
-					.replaceAll("%d",myDomain);
-					providerUrl = providerUrl.replaceAll("%u",myUsername)
-					.replaceAll("%d",myDomain);
-					setUserSearch(getUserSearch().replaceAll("%u", myUsername)
-							.replaceAll("%d", myDomain));
-				} 
-
-				// now expand %s
-				if (baseDn.contains("%s"))
-					baseDn = baseDn.replaceAll("%s",username);
-				if (providerUrl.contains("%s"))
-					providerUrl = providerUrl.replaceAll("%s",username);
-				if (getUserSearch().contains("%s"))
-					setUserSearch(getUserSearch().replaceAll("%s", username));
-				if (principal.getUser() != null) {
-					baseDn = baseDn.replaceAll("%e", principal.getUser().getEmail());
-				}
-			}
-
-		}
-
-		if (logger.isTraceEnabled()) {
-			logger.trace("Connecting to "+ providerUrl + "/" + baseDn + "?" + getUserSearch());
-		}
-
-	}
-	/**
-	 * Create Ldap/DB manager for the syncsource
-	 * with dynamic information about the syncSource
-	 */
-	public boolean initializeManager() {
-		boolean ret = false;
-		if (logger.isDebugEnabled())
-			logger.debug("initializeManager: LDAPInterface, LDAPState");
-
-		try {
-			// replace standard field in providerUrl and baseDn: %D, %u, %d,  %s, %e, %principal, psRoot
-			expandSearchAndBaseDn(principal);
-
-			// Create Ldap Interface
-			LdapManagerInterface li = LDAPManagerFactory.createLdapInterface(getLdapInterfaceClassName());
-			li.init(providerUrl, baseDn, ldapUser, ldapPass, followReferral, connectionPooling, contactDAO);
-			li.setTimeZone(serverTimeZone);
-			// set ldapinterface.entryFilter
-
-			logger.info("createSyncSource[new LDAPState]");
-			ldapState = new LDAPState(li, dbName);
-
-			if (ldapState != null) { 
-				ret =  true;
-			}
-		} catch (SyncSourceException e) {
-			logger.warn("Ldapinterface error:", e);
-			e.printStackTrace();
-		} catch (LDAPAccessException e) {
-			logger.warn("LDAPInterface somehow failed, please check your settings", e);
-		} 
-
-		return ret;
-	}
-
 	/**
 	 * Adds a SyncItem object (representing a contact).
 	 *
@@ -702,7 +585,7 @@ implements SyncSource, Serializable, LazyInitBean {
 	 * @param syncContext @see SyncSource
 	 */
 	public void beginSync(SyncContext syncContext) throws SyncSourceException {
-		logger.info("beginSync()");
+		logger.info("AbstractLDAPSyncSource beginSync()");
 		 // FCTF won't call init() so we need it for testing
 		init();
 		super.beginSync(syncContext);
@@ -720,12 +603,12 @@ implements SyncSource, Serializable, LazyInitBean {
 
 		if(logger.isInfoEnabled())
 			logger.info("beginSync for LDAPConnector ( " + this.principal + " ) mode ( " + syncContext.getSyncMode() + " )" 
-					+ "since (" + syncContext.getSince()  +";" + syncContext.getTo()+ ")");
+					+ " since (" + syncContext.getSince()  +";" + syncContext.getTo()+ ")");
 
 		setDeviceInfo(syncContext);
 
 
-		logger.info("LDAPSyncSource beginSync end");
+		logger.info("AbstractLDAPSyncSource beginSync end");
 	}
 
 	/**
@@ -830,40 +713,12 @@ implements SyncSource, Serializable, LazyInitBean {
 	}
 
 
-	// -------------------------------------------------------- Private methods
-
-
-
-	/**
-	 * @param List <syncItem> syncItems
-	 * @return
-	 */
-	private SyncItemKey[] extractKeys(List<SyncItem> syncItems) {
-		logger.info("extractKeys(" + syncItems.toString() + ")");
-		SyncItemKey[] keys = new SyncItemKey[syncItems.size()];
-		/*
-        Iterator<SyncItem> it = syncItems.iterator();
-        int i = 0;
-        while( it.hasNext() ) {
-        keys[i] = it.next().getKey();
-        i++;
-        }
-		 */
-		for (int i = 0; i < syncItems.size(); i++) {
-			keys[i] = syncItems.get(i).getKey();
-		}
-		if (logger.isTraceEnabled())
-			logger.trace("keys=" + keys.toString());
-		return keys;
+	public void setLdapUrl(String ldapUrl) {
+		this.providerUrl = ldapUrl;
 	}
-
-	/**
-	 * Returns a timestamp aligned to UTC
-	 */
-	private Timestamp normalizeTimestamp(Timestamp t) {
-		return new Timestamp(t.getTime() - getServerTimeZone().getOffset(t.getTime()));
+	public String getLdapUrl() {
+		return providerUrl;
 	}
-
 	// ------------------------------------------------------ Protected methods
 	/**
 	 * Removes the item with the given itemKey marking the item deleted with the
@@ -900,27 +755,87 @@ implements SyncSource, Serializable, LazyInitBean {
 
 	}
 
-	// ------------------------------------------------------- Abstract methods
-	/**
-	 * Returns a SyncItem with the content of the given file and the given state.
-	 * @param contacts the contacts to be read
-	 * @param state the item state
-	 * @return SyncItem an item with the content of the given file and the given state
-	 * @throws SyncSourceException if an error occurs
-	 */
-	protected abstract List<SyncItem> getSyncItems(List<Contact> contacts, char state)
-	throws SyncSourceException;
 
 	/**
-	 * Sets the given syncItem in the given file.
-	 * @param syncItem the item to set
-	 * @param contact the contact where to set the item (LDAP Store)
-	 * @return SyncItem
-	 * @throws SyncSourceException
+	 * Expand bean fields userSearch, baseDn, providerUrl with funambol principal data.
+	 * With a standard officer, replace 
+	 *  - username =~ %u@%d
+	 *  - username = %s
+	 *  - principal = %principal
+	 *  
+	 * Using LdapUserProvisioningOfficer (LDAPUser) enables 
+	 * - setting providerUrl=psRoot .
+	 * - basedn = %D
+	 * @param principal
 	 */
-	protected abstract SyncItem[] setSyncItems(SyncItem[] syncItem,
-			Contact contact) throws SyncSourceException;
-
+	protected void expandSearchAndBaseDn(Sync4jPrincipal principal ) {
+		if (principal != null)   {
+			String myPrincipalID = "" + principal.getId();
+			baseDn = baseDn.replaceAll("%principal", myPrincipalID);
+	
+			String username = principal.getUsername();
+	
+			// manage LDAPUser attributes
+			if (principal.getUser() instanceof LDAPUser) {
+				LDAPUser user = (LDAPUser) principal.getUser();
+	
+				if (StringUtils.isNotEmpty(user.getPsRoot())) {
+					providerUrl = user.getPsRoot();
+					baseDn = "";
+					if (logger.isDebugEnabled()) {
+						logger.debug("Connecting to "+ providerUrl + "/" + baseDn + "?" + getUserSearch());
+					}
+					return;
+				} else {
+					if (StringUtils.isNotEmpty(user.getUserDn())) {
+						baseDn = baseDn.replaceAll("%D", user.getUserDn());
+					}
+				}
+			} 
+	
+			if (username != null) {
+				// if username  is an email substitute %u e %d in baseDn:  
+				// eg. basedn: dc=%d, o=babel, dc=top
+				// eg. basedn: dc=%d, o=referral
+				// eg. ldapUrl: ldap://%d.babel.it:234/
+				if (username.matches(Constants.EMAIL_PATTERN)) {
+					String tmp[] = username.split("@");
+					String myUsername = tmp[0];
+					String myDomain   = (tmp.length >1) ? tmp[1] : ""; // if domain is not set, use just %u
+					if (logger.isTraceEnabled()) {
+						logger.trace("username is [" +username+"," + myUsername +", " + myDomain + "]");				
+					}
+	
+	
+					// expand %u and %d in ldapUrl and baseDn
+					// this enables elastic funambol support:D
+					baseDn = baseDn.replaceAll("%u",myUsername)
+					.replaceAll("%d",myDomain);
+					providerUrl = providerUrl.replaceAll("%u",myUsername)
+					.replaceAll("%d",myDomain);
+					setUserSearch(getUserSearch().replaceAll("%u", myUsername)
+							.replaceAll("%d", myDomain));
+				} 
+	
+				// now expand %s
+				if (baseDn.contains("%s"))
+					baseDn = baseDn.replaceAll("%s",username);
+				if (providerUrl.contains("%s"))
+					providerUrl = providerUrl.replaceAll("%s",username);
+				if (getUserSearch().contains("%s"))
+					setUserSearch(getUserSearch().replaceAll("%s", username));
+				if (principal.getUser() != null) {
+					baseDn = baseDn.replaceAll("%e", principal.getUser().getEmail());
+				}
+			}
+	
+		}
+	
+		if (logger.isTraceEnabled()) {
+			logger.trace("Connecting to "+ providerUrl + "/" + baseDn + "?" + getUserSearch());
+		}
+	
+	}
 	/**
 	 * Extracts the content from a syncItem.
 	 *
@@ -938,24 +853,73 @@ implements SyncSource, Serializable, LazyInitBean {
 	}
 
 
-	// rpolli
+
+
 	/**
-	 * Sets the given syncItem in the given file.
-	 * @param syncItem the item to set
-	 * @param contact the contact where to set the item (LDAP Store)
-	 * @return SyncItem
-	 * @throws SyncSourceException
+	 * Create Ldap/DB manager for the syncsource
+	 * with dynamic information about the syncSource
 	 */
-	protected abstract SyncItem createItem(String uid, Contact contact, char state)
-	throws SyncSourceException;
-
-	public void setLdapUrl(String ldapUrl) {
-		this.providerUrl = ldapUrl;
+	protected boolean initializeManager() {
+		boolean ret = false;
+		if (logger.isDebugEnabled())
+			logger.debug("initializeManager: LDAPInterface, LDAPState");
+	
+		try {
+			// replace standard field in providerUrl and baseDn: %D, %u, %d,  %s, %e, %principal, psRoot
+			expandSearchAndBaseDn(principal);
+	
+			// Create Ldap Interface
+			LdapManagerInterface li = LDAPManagerFactory.createLdapInterface(getLdapInterfaceClassName());
+			li.init(providerUrl, baseDn, ldapUser, ldapPass, followReferral, connectionPooling, contactDAO);
+			li.setTimeZone(serverTimeZone);
+			// set ldapinterface.entryFilter
+	
+			logger.info("createSyncSource[new LDAPState]");
+			ldapState = new LDAPState(li, dbName);
+	
+			if (ldapState != null) { 
+				ret =  true;
+			}
+		} catch (SyncSourceException e) {
+			logger.warn("Ldapinterface error:", e);
+			e.printStackTrace();
+		} catch (LDAPAccessException e) {
+			logger.warn("LDAPInterface somehow failed, please check your settings", e);
+		} 
+	
+		return ret;
+	}
+	/**
+	 * @param List <syncItem> syncItems
+	 * @return
+	 */
+	private SyncItemKey[] extractKeys(List<SyncItem> syncItems) {
+		logger.info("extractKeys(" + syncItems.toString() + ")");
+		SyncItemKey[] keys = new SyncItemKey[syncItems.size()];
+		/*
+        Iterator<SyncItem> it = syncItems.iterator();
+        int i = 0;
+        while( it.hasNext() ) {
+        keys[i] = it.next().getKey();
+        i++;
+        }
+		 */
+		for (int i = 0; i < syncItems.size(); i++) {
+			keys[i] = syncItems.get(i).getKey();
+		}
+		if (logger.isTraceEnabled())
+			logger.trace("keys=" + keys.toString());
+		return keys;
 	}
 
-	public String getLdapUrl() {
-		return providerUrl;
+	/**
+	 * Returns a timestamp aligned to UTC
+	 */
+	private Timestamp normalizeTimestamp(Timestamp t) {
+		return new Timestamp(t.getTime() - getServerTimeZone().getOffset(t.getTime()));
 	}
+
+	
 	/**
 	 * Return the device with the given deviceId
 	 * @param deviceId String
@@ -987,4 +951,36 @@ implements SyncSource, Serializable, LazyInitBean {
 			throw new SyncSourceException("Error settings the device information." + e.getMessage());
 		}
 	}
+	
+	
+	// ------------------------------------------------------- Abstract methods
+	/**
+	 * Returns a SyncItem with the content of the given file and the given state.
+	 * @param contacts the contacts to be read
+	 * @param state the item state
+	 * @return SyncItem an item with the content of the given file and the given state
+	 * @throws SyncSourceException if an error occurs
+	 */
+	protected abstract List<SyncItem> getSyncItems(List<Contact> contacts, char state)
+	throws SyncSourceException;
+
+	/**
+	 * Sets the given syncItem in the given file.
+	 * @param syncItem the item to set
+	 * @param contact the contact where to set the item (LDAP Store)
+	 * @return SyncItem
+	 * @throws SyncSourceException
+	 */
+	protected abstract SyncItem[] setSyncItems(SyncItem[] syncItem,
+			Contact contact) throws SyncSourceException;
+	// rpolli
+	/**
+	 * Sets the given syncItem in the given file.
+	 * @param syncItem the item to set
+	 * @param contact the contact where to set the item (LDAP Store)
+	 * @return SyncItem
+	 * @throws SyncSourceException
+	 */
+	protected abstract SyncItem createItem(String uid, Contact contact, char state)
+	throws SyncSourceException;
 }

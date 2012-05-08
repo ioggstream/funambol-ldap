@@ -1,0 +1,13 @@
+BEGIN:VCARD
+N:Avis 
+ADR;HOME:PO Box 1001;;1001 Residential Street;Winchester;Hampshire;10101;UK
+ADR;WORK:PO Box 2002;;2002 Central Street;Winchester;Hampshire;20202;UK
+EMAIL;INTERNET:jon@avis.info
+URL:www.avis.org/jon
+TEL;PREF;VOICE:000
+TEL;VOICE:111
+TEL;VOICE;HOME:222
+TEL;VOICE;WORK:333
+TEL;FAX;WORK:444
+TEL;CELL:555
+END:VCARD

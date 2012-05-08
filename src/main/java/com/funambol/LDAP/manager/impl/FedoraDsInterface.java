@@ -112,7 +112,7 @@ public class FedoraDsInterface extends AbstractLDAPManager {
 			} catch (NameAlreadyBoundException e) {
 				logger.error("Entry already exist");
 			} catch (SyncSourceException e) {
-				logger.error(e.getMessage());
+				logger.error(e.getMessage(), e);
 			} catch (LDAPAccessException e) {
 				logger.error("Can't connect to LDAP server " + e.getMessage());
 			} catch (NamingException e) {
@@ -129,7 +129,7 @@ public class FedoraDsInterface extends AbstractLDAPManager {
 			}
 		
 		} else {
-			logger.error("Bad item result in null calendar");
+			logger.error("Bad item result in null contact");
 		}
 		return newEntryNsUniqueId;
 	}
@@ -219,8 +219,13 @@ public class FedoraDsInterface extends AbstractLDAPManager {
 	}
 
 	public List<String> getTwins(SyncItem si) {
-		// TODO Auto-generated method stub
-		return null;
+		/* TODO
+		 * Contact c =  sincItem2Contact(si);
+		 * Attributes atts = contact2Attributes(c)
+		 * cercaEntryGemelle(attrs)
+		 * ritorna gli Uid come array
+		 */
+		return super.getTwins(si);
 	}
 
 }

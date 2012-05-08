@@ -9,6 +9,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -17,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import com.funambol.LDAP.exception.LDAPAccessException;
 import com.funambol.LDAP.manager.listeners.LdapUnsolicitedListener;
 import com.funambol.LDAP.utils.Constants;
+import com.funambol.LDAP.utils.ProxyAuthorizationControl;
 import com.funambol.framework.engine.source.SyncSourceException;
 import com.funambol.framework.logging.FunambolLogger;
 import com.funambol.framework.logging.FunambolLoggerFactory;
@@ -27,12 +29,11 @@ import com.funambol.framework.logging.FunambolLoggerFactory;
  *
  */
 public class BasicLdapManager  {
-
+	private static final int LDAP_TIMEOUT = 10000;
 	protected static final String INITIAL_CONTEXT_FACTORY="com.sun.jndi.ldap.LdapCtxFactory";
 	protected static final String LDAP_CONNECTION_POOL = "com.sun.jndi.ldap.connect.pool";
 
 
-	private boolean followReferral = false;
 	// ---------------------------------------------------------- Private data	
 	protected FunambolLogger logger = FunambolLoggerFactory.getLogger(Constants.LOGGER_LDAP_MANAGER);
 
@@ -45,6 +46,9 @@ public class BasicLdapManager  {
 	protected String providerUrl;
 	protected String baseDn = null;
 	protected boolean isPoolingConnection = false;
+	private boolean followReferral = false;
+	private boolean proxyAuth = false;
+
 	//PV
 	private LdapContext context;
 	// manage Listener
@@ -113,6 +117,13 @@ public class BasicLdapManager  {
 						throw new LDAPAccessException("ERROR: Ldap server is null. Please fix configuration.");
 					}
 					this.context = new InitialLdapContext(env, null);
+					
+					// FIXME untested
+					if (isProxyAuth()) {
+						String value = "dn: " + bindDn;
+						this.context.setRequestControls(new Control[] {new ProxyAuthorizationControl(value)});
+					}
+					
 					setReconnectionNecessary(false);
 				} 
 
@@ -208,14 +219,15 @@ public class BasicLdapManager  {
 	protected NamingEnumeration<SearchResult> search(String filter, String[] attributes, int scope, long countLimit) throws LDAPAccessException, NamingException {
 
 		if (logger.isTraceEnabled()) {
-			logger.trace(String.format("search[%s, %s, %d] " , filter, Arrays.asList(attributes), scope));			
+			logger.trace(String.format("search[%s, %s, %s, %d] ", baseDn, filter, Arrays.asList(attributes), scope));			
 		}
 		NamingEnumeration<SearchResult> result = null;
 		SearchControls ctls = new SearchControls();
 		ctls.setReturningAttributes(attributes);
 		ctls.setSearchScope(scope);
 		ctls.setCountLimit(countLimit); 
-		ctls.setTimeLimit(10000); // FIXME messo un timeout di 10 secondi
+		ctls.setTimeLimit(LDAP_TIMEOUT); // FIXME messo un timeout di 10 secondi
+		
 		result = getContext().search(baseDn, filter, ctls);
 		this.close();
 //		try {
@@ -288,6 +300,12 @@ public class BasicLdapManager  {
 			return true;
 		} 
 		return false;
+	}
+	public void setProxyAuth(boolean proxyAuth) {
+		this.proxyAuth = proxyAuth;
+	}
+	public boolean isProxyAuth() {
+		return proxyAuth;
 	}
 	
 }
