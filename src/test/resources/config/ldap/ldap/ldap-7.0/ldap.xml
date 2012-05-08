@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.6.0" class="java.beans.XMLDecoder">
+	<object
+		class="com.funambol.LDAP.engine.source.ExtendedLDAPContactsSyncSource">
+		<void property="name">
+			<string>ldap</string>
+		</void>
+		<void property="sourceURI">
+			<string>ldap</string>
+		</void>
+		<void property="dbName">
+			<string>fnblds</string>
+		</void>
+		<void property="daoName">
+			<string>piTypePerson</string>
+		</void>
+		<void property="ldapInterfaceClassName">
+			<string>FedoraDs</string>
+		</void>
+		<void property="ldapBase">
+			<string>ou=people,dc=%d,o=bigcompany,dc=babel,dc=it</string>
+		</void>
+		<void property="providerUrl">
+			<string>ldap://ldap.example.com</string>
+		</void>
+		<void property="userSearch">
+			<string>(mail=%s)</string>
+		</void>
+		<void property="entryFilter">
+			<string>(objectclass=piTypePerson)</string>
+		</void>
+		<void property="ldapPass">
+			<string>password</string>
+		</void>
+		<void property="ldapUser">
+			<string>cn=directory manager</string>
+		</void>
+		<void property="followReferral">
+			<boolean>false</boolean>
+		</void>
+		<void property="connectionPooling">
+			<boolean>false</boolean>
+		</void>
+		<void property="info">
+			<object class="com.funambol.framework.engine.source.SyncSourceInfo">
+				<void property="supportedTypes">
+					<array class="com.funambol.framework.engine.source.ContentType"
+						length="2">
+						<void index="0">
+							<object class="com.funambol.framework.engine.source.ContentType">
+								<void property="type">
+									<string>text/x-vcard</string>
+								</void>
+								<void property="version">
+									<string>2.1</string>
+								</void>
+							</object>
+						</void>
+						<void index="1">
+							<object class="com.funambol.framework.engine.source.ContentType">
+								<void property="type">
+									<string>text/sifc</string>
+								</void>
+								<void property="version">
+									<string>2.0</string>
+								</void>
+							</object>
+						</void>
+					</array>
+				</void>
+			</object>
+		</void>
+		<void property="serverTimeZone">
+			<object class="sun.util.calendar.ZoneInfo">
+				<void property="ID">
+					<string>Europe/Rome</string>
+				</void>
+				<void property="rawOffset">
+					<int>3600000</int>
+				</void>
+			</object>
+		</void>
+
+	</object>
+</java>

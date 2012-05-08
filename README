@@ -1,0 +1,17 @@
+
+ Funambol Ldap Connector
+=========================
+
+Funambol ldap connector allows you to synchronize 
+your personal addressbook with an ldap tree.
+
+The ldap tree is configurable and may be fixed
+or dynamic: 
+ * using a substring of the authenticated username;
+ * pointing to a tree specified in an ldap attribute of the user (if you're using ldap authentication).
+
+
+See INSTALL.txt for more infos.
+
+NOTE: to prepare the sources you need to issue in the main directory
+# ln -s src/test/resources/config/

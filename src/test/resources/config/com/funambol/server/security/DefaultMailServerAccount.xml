@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.4.0" class="java.beans.XMLDecoder">
+	<object class="com.funambol.email.model.MailServer">
+	<!-- see MailServer javadoc to set all the properties -->
+		<void property="description">
+			<string>Generated from bean template</string>
+		</void>
+		<void property="mailServerType">
+			<string>Custom</string>
+		</void>
+			<!--  folder path  -->
+		<void property="inboxPath">
+			<string>INBOX</string>
+		</void>
+		<void property="inboxActivation">
+			<boolean>true</boolean>
+		</void>
+		<void property="sentPath">
+			<string>sent-mail</string>
+		</void>
+		<void property="sentActivation">
+			<boolean>true</boolean>
+		</void>
+		<void property="outboxPath">
+			<string>Outbox</string>
+		</void>
+		<void property="outboxActivation">
+			<boolean>true</boolean>
+		</void>
+		<void property="draftsPath">
+			<string>Drafts</string>
+		</void>
+		<void property="draftsActivation">
+			<boolean>false</boolean>
+		</void>
+		<void property="trashPath">
+			<string>Trash</string>
+		</void>
+		<void property="trashActivation">
+			<boolean>false</boolean>
+		</void>
+			<!--  server data -->
+		<void property="protocol">
+			<string>imap</string>
+		</void>			
+		<void property="inServer">
+			<string>mail.babel.it</string>
+		</void>
+		<void property="inPort">
+			<int>143</int>
+		</void>	
+		<void property="isSSLIn">
+			<boolean>true</boolean>
+		</void>	
+		<void property="outServer">
+			<string>mail.babel.it</string>
+		</void>
+		<void property="outPort">
+			<int>465</int>
+		</void>
+		<void property="isSSLOut">
+			<boolean>true</boolean>
+		</void>
+		<void property="outAuth">
+			<boolean>true</boolean>
+		</void>
+	</object>
+</java>

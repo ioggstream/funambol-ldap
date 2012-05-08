@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contact>
+<FirstName>Jonathan</FirstName>
+<LastName>Avis</LastName>
+<BusinessAddressCity>Winchester</BusinessAddressCity>
+<BusinessAddressCountry>UK</BusinessAddressCountry>
+<BusinessAddressPostOfficeBox>PO Box 2002</BusinessAddressPostOfficeBox>
+<BusinessAddressPostalCode>20202</BusinessAddressPostalCode>
+<BusinessAddressState>Hampshire</BusinessAddressState>
+<BusinessAddressStreet>2002 Central Street</BusinessAddressStreet>
+<HomeAddressCity>Winchester</HomeAddressCity>
+<HomeAddressCountry>UK</HomeAddressCountry>
+<HomeAddressPostOfficeBox>PO Box 1001</HomeAddressPostOfficeBox>
+<HomeAddressPostalCode>10101</HomeAddressPostalCode>
+<HomeAddressState>Hampshire</HomeAddressState>
+<HomeAddressStreet>1001 Residential Street</HomeAddressStreet>
+<PrimaryTelephoneNumber>000</PrimaryTelephoneNumber>
+<OtherTelephoneNumber>111</OtherTelephoneNumber>
+<HomeTelephoneNumber>222</HomeTelephoneNumber>
+<BusinessTelephoneNumber>333</BusinessTelephoneNumber>
+<BusinessFaxNumber>444</BusinessFaxNumber>
+<MobileTelephoneNumber>555</MobileTelephoneNumber>
+<Email1Address>jon@avis.info</Email1Address>
+<WebPage>www.avis.org/jon</WebPage>
+</contact>

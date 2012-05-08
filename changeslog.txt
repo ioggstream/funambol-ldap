@@ -1,0 +1,38 @@
+------------------------------
+Funambol LDAP Connector Version 6.5.1
+------------------------------
+- Removed link to LDAP external library, migration to JNDI
+- Created LDAP user provisioning Officer
+- Fixed Bugs & minor optimizations
+
+------------------------------
+Funambol LDAP Connector Version 6.5.0
+------------------------------
+- Ported to DS Server 6.5.4
+- Updated packages
+- Fixed Bugs
+- Generalized LDAP CN path for dinamic user database
+- Mavenized for quick building
+- Transport to SVN
+- Added installation text file
+- Added support for Fedora LDAP Server
+
+------------------------------
+Funambol LDAP Connector version 2.0.0
+------------------------------
+- Two way syncronization
+- Better data handling
+- Better LDAP structure to allow multi user databases
+
+------------------------------
+Sync4jLDAP version 1.0
+- One way synchronization
+- Short data handling
+- Single user database
+------------------------------
+
+------------------------------
+Sync4j sandcastle version 0.1.1
+------------------------------
+2005-08-25
+- Some playing with the sync4j framework

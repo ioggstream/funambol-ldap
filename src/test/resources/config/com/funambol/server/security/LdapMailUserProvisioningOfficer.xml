@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.4.0" class="java.beans.XMLDecoder">
+	<object class="com.funambol.LDAP.security.LDAPMailUserProvisioningOfficer">
+		<void property="serverAuth">
+			<string>none</string>
+		</void>
+		<void property="ldapInterfaceClassName"> <!-- short class name interface -->
+			<string>FedoraDs</string>
+		</void>
+		<void property="ldapUrl">
+			<string>ldap://ldap.example.com/</string>
+		</void>
+		<void property="baseDn">
+			<string>dc=babel,dc=it</string>
+		</void>
+		<void property="userSearch">
+			<string>(&amp;(mail=%s)(objectclass=inetorgperson))</string>
+		</void>
+		<!--
+			credential used for first bind to ldap. if unset leave empty
+		-->
+		<void property="searchBindDn">
+			<string></string>
+		</void>
+		<void property="searchBindPassword">
+			<string></string>
+		</void>
+		<void property="followReferral"><boolean>false</boolean> </void>
+		<void property="connectionPooling"><boolean>true</boolean> </void>
+		
+		<void property="mailServerConfigBean">
+			<string>./com/funambol/server/security/DefaultMailServerAccount.xml</string>
+		</void>
+
+		
+		<!--  dynamic values taken from ldap -->
+		<!--
+			attributes to set default fields: firstName, lastName, email
+		-->
+		<void property="attributeMap">
+			<void method="put">
+				<string>firstName</string>
+				<string>givenName</string>
+			</void>
+			<void method="put">
+				<string>lastName</string>
+				<string>sn</string>
+			</void>
+			<void method="put">
+				<string>email</string>
+				<string>mail</string>
+			</void>
+			<!--  attribute to set mailserver & co -->
+			<void method="put">
+				<string>imapServer</string>
+				<string></string>
+			</void>
+			<void method="put">
+				<string>smtpServer</string>
+				<string></string>
+			</void>
+			<void method="put">
+				<string>caldavUri</string>
+				<string></string>
+			</void>
+			<void method="put">
+				<string>addressBookUri</string>
+				<string>psRoot</string>
+			</void>
+		</void>
+	</object>
+</java>

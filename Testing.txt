@@ -1,0 +1,40 @@
+author: rpolli@babel.it
+
+For testing this connector and its classess you need at least
+two ldap server with the following data
+1- ldap://ldap.example.com 
+the standard ldap server where to store users with inetOrgPerson objectClass
+users may have the following attribute where to store 
+the ldapuri of the addressbook: psRoot
+
+the test ldap tree is the following:
+uid=aaccf.amar,ou=people,dc=bigdomain.net,o=bigcompany,dc=babel,dc=it
+
+
+2- ldap://pab.example.com/
+ldap server where to store addressbook
+
+the test ldap tree is:
+ldap://pab.example.com/ou=rpolli@bigdomain.net,dc=bigdomain.net,ou=PAB
+
+= Officer =
+The ldap officer authenticate users in the standard 2way move:
+- bind with credentials defined in officer xml and search for matching field
+aka. ldapsearch -D admin -wadmin -b "dc=babel,dc=it" "(mail=aacf.amar@bigdomain.net)" dn 
+- bind with the DN returned by the previous search
+aka ldapsearch -D "thepreviousdn" -wpassword "(objectclass=*)" dn mail givenName sn psRoot
+
+- return an LDAPUser object, which extends the Sync4jUser 
+providing the info retrieved from ldap (eg. the DN, the mail,..)
+
+== Officer fields ==
+
+
+
+ = FTCT simple =
+# sh bin/fctf -s config/ldap-vcard.xml
+
+ = FTCF with officer =
+# sh bin/fctf -s config/ldap-officer-vcard.xml \
+-o $HOME/workspace/ldap-connector/src/test/resources/config/com/funambol/server/security/LdapUserProvisioningOfficer.xml \ 
+-u aaccf.amar@bigdomain.net -p password -v                                                                     

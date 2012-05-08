@@ -1,0 +1,125 @@
+------------------------------
+Funambol LDAP Connector Version 7.0
+Installation
+------------------------------
+
+Connector capabilities
+----------------------
+The LDAP Connector 7.0 
+ * can synchronize only contacts items using VCARD format
+ * allows Ldap Authentication and auto-provisioning
+ * allows mailserver account auto-provisioning
+
+Installation requirements
+-------------------------
+The LDAP Connector, in order to be installed, requires:
+- a working installation of DS-SERVER
+- java 1.6
+
+Building requirements
+----------------------
+- A working installation of DS-SERVER for running tests
+- Email connector for building LdapMailUserProvisioningOfficer
+- java 1.6
+
+Installation steps
+------------------
+- Copy the ldap-connector-<VERSION>.s4j file in the ds-server/modules folder
+- Edit the ds-server/installation.properties file adding ldap-connector-<VERSION> to the modules-to-install row
+  (the module list are comma separated without .s4j extension)
+- Run the command ./bin/install-modules.sh from the ds-server/ folder/directory
+
+Configuration of LDAP connector
+-------------------------------
+- Start the Funambol Admin Tool and connect to your DS-server
+- Browse the "Modules" tree and double click on the "ldap-X.X" label
+- Open all the tree and doble click on LDAP SyncSource Contacts
+- Admin panel for connector is shown, example of configuration:
+-- Source URI: ldapcards
+-- Name: ldapcards
+-- Type: text/x-vcard (SIF not fully supported)
+
+-- LDAP Provider Url: the ldap uri (ldap:// or ldaps://)
+-- LDAP Base DN: Where contacts are stored in the LDAP server (*)
+-- LDAP Entry Filter: The filter used to find the contacts
+
+-- LDAP User Search: filter used to find the user (if not psRoot)
+-- LDAP User: DN for the superuser or the super user allowed to access the subtree of Base DN
+-- LDAP Password: Password for the LDAP User
+-- LDAP Follow Referral: follow smart referral
+-- Funambol DBMS name Name: fnbluser
+
+LDAP Base DN (*)
+----------------
+The base DN can include place holders such as:
+	%u = the part before the @ in the user email address
+	%d = the part after  the @ in the user email address
+	%principal = the principal id
+	%s = the full funambol username
+
+Examples
+1) One tree per user where princial
+	ou=%principal,ou=people,dc=example,dc=com
+2) One tree per domain and per user
+	ou=%principal, dc=%d,dc=domains,dc=com
+3) Same as 2 where user is identified by username
+	ou=%u,ou=%d,ou=domains,dc=com
+
+
+LUPO - Ldap UserProvisioning Officer
+------------------------------------
+To authenticate Funambol against Ldap you have to configure LdapUserProvisioningOfficer.xml
+-- ldapInterfaceClassName: {FedoraDs, OpenLdap}
+-- ldapUri:		the ldapUri of the ldap server
+-- baseDn:		the baseDn where users reside (eg. "dc=babel.it")
+-- userSearch:		how to search for user (eg. "(uid=%s)" ) find ldap users whom matches the funambol username 
+-- searchBindDn:	credential used for the first bind
+-- searchBindPassword:
+-- followReferral:	follow smart referral?
+-- attributeMap: 	a map used to provision funambol user db with ldap fields
+	firstName,  givenName
+	lastName,   sn
+	email,      mail
+	imapServer, mailhost 		# if set, uses this field for push
+	smtpServer, mailhost		# if set uses this field for push
+	caldavUri,  calCapUri		# if set, uses this field for caldav-connector
+	addressBookUri, psRoot		# if set, sync addressbook against ldapuri specified in psRoot
+
+LUPO does the following:
+0- in <userSearch> replace %s with username or %u %d with username/domain if an email is given
+1- Search the user with an ldapsearch like the following
+# ldapsearch -h <ldapUri> -b <baseDn> -D <searchBindDn> -W <searchBindPassword> <userSearch> <firstname,...,addressBookUri>
+2- then authenticate the user
+# ldapsearch -h <ldapUri> -b <userdn> -D <userdn> -W <userpass>
+
+ex.
+- ldapUri: ldap://ldap.babel.it
+- baseDn: dc=babel.it
+- userSearch: (uid=%s)
+- sync user: rpolli
+The user is found like  
+# ldapsearch -h ldap://ldap.babel.it -b dc=babel.it "(uid=rpolli)" rpolli
+dn: uid=rpolli,ou=people,dc=babel.it
+uid: rpolli
+
+Then the auth is made with
+# ldapsearch -h ldap://ldap.babel.it -D uid=rpolli,ou=people,dc=babel.it -W password 
+dn: uid=rpolli,ou=people,dc=babel.it
+uid: rpolli
+givenName: Roberto
+mail: rpolli@babel.it
+
+The retrieved fields are used to provision user into Funambol User database.
+
+
+LDAP SyncSource initialization
+------------------------------
+ldap-connector manager is initialized in this way:
+1- parse bean parameters and replace %patterns with user data.
+	ex. basedn: ou=%principal,dc=babel.it -> basedn: ou=100,dc=babel.it
+	ex. basedn: uid=%u,dc=babel.it  ->  basedn: uid=rpolli,dc=babel.it
+   Using Ldap*Officer is possible to use psRoot instead of providerUrl and %D as the full dn of the user entry
+	ex. basedn: ou=%principal,%D    ->  basedn: ou=100,uid=rpolli,dc=babel.it 
+	ex. providerUrl: dc=babel.it	->  providerUrl: ldap://ou=rpolli,dc=babel.it,o=piStore 
+2- create manager with providerUrl, baseDn & co 
+3- 

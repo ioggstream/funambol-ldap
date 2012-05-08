@@ -1,0 +1,216 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>ldap-connector</artifactId>
+	<groupId>modules</groupId>
+	<version>7.0.1</version>
+	<name>Funambol LDAP Connector</name>
+	<packaging>s4j</packaging>
+    
+    <!--
+        SITE
+    -->
+	<distributionManagement>
+		<site>
+			<id>local</id>
+			<url>file://${basedir}/target/deploy/site</url>
+		</site>
+	</distributionManagement>
+	<url>https://ldap-connector.forge.funambol.org/</url>
+	<parent>
+		<groupId>funambol</groupId>
+		<artifactId>funambol</artifactId>
+		<version>7.1.0</version>
+	</parent>
+    <!--
+        REPORTING
+    -->
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<reports>
+                            <!--report>index</report-->
+							<report>dependencies</report>
+                            <!--report>project-team</report-->
+							<report>mailing-list</report>
+                            <!--report>cim</report-->
+							<report>issue-tracking</report>
+                            <!--report>license</report-->
+                            <!--report>scm</report-->
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+    
+    <!--
+        DEPENDENCIES
+    -->
+	<dependencies>
+        <!--
+            External dependencies
+        -->        
+       
+        <!--
+            Internal dependencies
+        -->
+		<dependency>
+			<artifactId>core-framework</artifactId>
+			<groupId>funambol</groupId>
+			<version>7.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<artifactId>admin-framework</artifactId>
+			<groupId>funambol</groupId>
+			<version>7.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<artifactId>server-framework</artifactId>
+			<groupId>funambol</groupId>
+			<version>7.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>funambol</groupId>
+			<artifactId>ds-server</artifactId>
+			<version>7.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>funambol</groupId>
+			<artifactId>pim-framework</artifactId>
+			<version>7.1.1</version>
+			<scope>provided</scope>
+		</dependency>
+		
+				<dependency>
+			<artifactId>email-core</artifactId>
+			<groupId>funambol</groupId>
+			<version>7.0.6</version>
+			<scope>provided</scope>
+		</dependency>
+		<!--  External dependencies -->
+		<dependency>
+			<artifactId>log4j</artifactId>
+			<groupId>log4j</groupId>
+			<version>1.2.14</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4</version>
+			<scope>provided</scope>
+		</dependency> 
+        
+        <!-- test packages -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.1</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+
+	</dependencies>
+	<issueManagement>
+		<system>CollabNet</system>
+		<url>https://ldap-connector.forge.funambol.org/servlets/tracking</url>
+	</issueManagement>
+    
+    <!--
+        Build plug-ins
+    -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<addExtensions />
+							<classpathPrefix />
+						</manifest>
+					</archive>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+					<systemProperties>
+						<property>
+							<name>funambol.home</name>
+							<value>./src/test/resources</value>
+						</property>
+					</systemProperties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!--
+					The Funambol Maven Plugin enables the use of the following goals: -
+					funambol:s4j -} to create a Funambol module archive
+				-->
+				<groupId>funambol</groupId>
+				<artifactId>funambol-plugin</artifactId>
+				<version>1.0.8</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>funambol</id>
+			<url>http://m2.funambol.org/repositories/artifacts/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>funambol</id>
+			<url>http://m2.funambol.org/repositories/artifacts/</url>
+		</pluginRepository>
+	</pluginRepositories>
+</project>

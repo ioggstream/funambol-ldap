@@ -1,0 +1,9 @@
+BEGIN:VCARD
+N:Pum;Marlene;;;
+TEL;FAX;WORK:44
+TEL;VOICE;WORK:33
+TEL;VOICE;HOME:22
+URL:www.pumwelt.at
+EMAIL;INTERNET:miss_pum@linz.at
+ADR;HOME:;;55 Straussstrasse;;;;
+END:VCARD
